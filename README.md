@@ -12,7 +12,14 @@ And of course it's open source.
 * View the recorded photos and videos of the camera
 
 ### State of progress
-The app is more or less a alpha version. Things are being tested, the original app is being reverse engineered and my brain is being melted and curently some basic Bluetooth communication is possible:
+The app is more or less a alpha version. Things are being tested, the original app is being reverse engineered and my brain is being melted. Curently some basic Bluetooth communication is possible:
 * Making photos or videos
 * Getting some infos about the Gear360
 
+### Requirements
+The app needs the [Samsung Accessory SDK](https://developer.samsung.com/galaxy-watch/develop/sdk) to work.
+The file Addon.jar is currently unused, you can just remove it form the build.gradle file.
+
+### Help is welcome
+If you whant to help me feel free to create an Issue or Pull reqest.
+Thanks and have a great day ;)
