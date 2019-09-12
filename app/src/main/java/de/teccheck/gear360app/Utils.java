@@ -1,5 +1,8 @@
 package de.teccheck.gear360app;
 
+import android.content.Context;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
 import android.util.JsonReader;
 
 import com.google.gson.Gson;
@@ -10,6 +13,7 @@ import com.google.gson.JsonSyntaxException;
 import java.io.StringReader;
 import java.net.NetworkInterface;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 public class Utils {
@@ -62,6 +66,44 @@ public class Utils {
             e.printStackTrace();
         }
         return "";
+    }
+
+    public static void connectWifi(Context context){
+        connectWifi("AP_Gear 360(7D:66:D2)", "79606006", false, context);
+    }
+
+    public static void connectWifi(String ssid, String passwd, boolean open, Context context){
+
+        WifiManager wifiManager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
+        WifiConfiguration configuration = null;
+
+        //look for wifi network
+        List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
+        for( WifiConfiguration i : list ) {
+            if(i.SSID != null && i.SSID.equals("\"" + ssid + "\"")) {
+                configuration = i;
+                break;
+            }
+        }
+
+        //if not found create a new one and add it
+        if(configuration == null){
+            configuration = new WifiConfiguration();
+            configuration.SSID = "\"" + ssid + "\"";
+            if(open){
+                //without password
+                configuration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+            }else {
+                // with wpa password
+                configuration.preSharedKey = "\""+ passwd +"\"";
+            }
+            wifiManager.addNetwork(configuration);
+        }
+
+        // connect to the network
+        wifiManager.disconnect();
+        wifiManager.enableNetwork(configuration.networkId, true);
+        wifiManager.reconnect();
     }
 
 }

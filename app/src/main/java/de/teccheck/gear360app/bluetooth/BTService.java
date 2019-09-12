@@ -12,9 +12,6 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.samsung.accessory.api.SAGenericAdapter;
-import com.samsung.accessory.api.SAManagerConfig;
-
 import java.io.IOException;
 
 import de.teccheck.gear360app.MainActivity;
@@ -50,8 +47,8 @@ public class BTService {
             if (adapter == null) {
                 //EXCEPTION***********************************************************************************************
             }
+            BTName = adapter.getName();
         }
-        BTName = adapter.getName();
     }
 
     public void connect() {
@@ -75,7 +72,6 @@ public class BTService {
             if (isBound && btsaService != null) {
                 Log.d(TAG, "findPeers()");
                 btsaService.findPeers();
-                BTSender.sendBTInfoRequest(this);
             }
         }else if(type == 4){
             try {
@@ -85,6 +81,12 @@ public class BTService {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void onConnect(){
+        BTMessageSender.sendPhoneInfo(this);
+        BTMessageSender.sendWidgetInfoRequest(this);
+        BTMessageSender.sendDateTimeRequest(this);
     }
 
     public void connectOld() {
@@ -147,7 +149,7 @@ public class BTService {
         if (isBound && btsaService != null) {
             Log.d(TAG, "findPeers()");
             btsaService.findPeers();
-            BTSender.sendBTInfoRequest(this);
+            BTMessageSender.sendPhoneInfo(this);
         }
         try {
             socket.close();

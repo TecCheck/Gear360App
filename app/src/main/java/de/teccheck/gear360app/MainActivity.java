@@ -1,9 +1,11 @@
 package de.teccheck.gear360app;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -11,12 +13,15 @@ import android.widget.TextView;
 import com.samsung.android.sdk.SsdkUnsupportedException;
 import com.samsung.android.sdk.accessory.SA;
 
-import de.teccheck.gear360app.bluetooth.BTSender;
+import de.teccheck.gear360app.bluetooth.BTMessageSender;
 import de.teccheck.gear360app.bluetooth.BTService;
+import de.teccheck.gear360app.dev.DevHomeActivity;
+import de.teccheck.gear360app.ui.ConfigEntryAdapter;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     public static final String TAG = "G360_" + MainActivity.class.getSimpleName();
+    public static BTService service = null;
 
     TextView cameraName = null;
     TextView versionCode = null;
@@ -26,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button sendShot = null;
     Button send2 = null;
     Button refreshList = null;
-    BTService service = null;
+
     RecyclerView recyclerView = null;
 
     @Override
@@ -59,8 +64,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             e.printStackTrace();
         }
 
-        service = new BTService();
-        service.start(this);
+        if(service == null) {
+            service = new BTService();
+            service.start(this);
+        }
 
         connectBtn.setOnClickListener(this);
         sendShot.setOnClickListener(this);
@@ -75,13 +82,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 service.connect();
                 break;
             case R.id.sendShot:
-                BTSender.sendShotRequest(service);
+                BTMessageSender.sendShotRequest(service);
                 break;
             case R.id.send2:
-                BTSender.sendLiveViewRequest(service);
+                startActivity(new Intent(this, DevHomeActivity.class));
                 break;
             case R.id.refresh:
-                BTSender.sendBTInfoRequest(service);
+                BTMessageSender.sendPhoneInfo(service);
                 updateList();
                 break;
         }

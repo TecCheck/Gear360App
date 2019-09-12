@@ -12,5 +12,8 @@
     <string name="buttonConnect">Connect</string>
     <string name="buttonDisconnect">Disconnect</string>
     <string name="buttonSend">Send</string>
+    <string name="title_activity_dev_home">Dev Home</string>
+    <string name="title_activity_dev_btdebugger">Bluetooth Debugger</string>
+    <string name="title_activity_dev_gearstate">Gear360 State</string>
 
 </resources>

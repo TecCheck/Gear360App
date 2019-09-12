@@ -2,17 +2,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="de.teccheck.gear360app">
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="com.samsung.bluetooth.permission.BLUETOOTH_DEVICE"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-
-    <uses-permission android:name="com.samsung.accessory.permission.ACCESSORY_FRAMEWORK"/>
-    <uses-permission android:name="com.samsung.accessory.permission.ACCESSORY_FRAMEWORK_ADMIN"/>
-    <uses-permission android:name="com.samsung.android.providers.context.permission.WRITE_USE_APP_FEATURE_SURVEY"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="com.samsung.bluetooth.permission.BLUETOOTH_DEVICE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="com.samsung.accessory.permission.ACCESSORY_FRAMEWORK" />
+    <uses-permission android:name="com.samsung.accessory.permission.ACCESSORY_FRAMEWORK_ADMIN" />
+    <uses-permission android:name="com.samsung.android.providers.context.permission.WRITE_USE_APP_FEATURE_SURVEY" />
     <uses-permission android:name="com.samsung.WATCH_APP_TYPE.Companion" />
     <uses-permission android:name="com.samsung.wmanager.ENABLE_NOTIFICATION" />
 
@@ -23,6 +25,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".LiveTestActivity"></activity>
+        <activity android:name=".dev.DevFunctions" />
+        <activity
+            android:name=".dev.DevGearStateActivity"
+            android:label="@string/title_activity_dev_gearstate" />
+        <activity
+            android:name=".dev.DevBTDebugActivity"
+            android:label="@string/title_activity_dev_btdebugger" />
+        <activity
+            android:name=".dev.DevHomeActivity"
+            android:label="@string/title_activity_dev_home" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,14 +44,14 @@
             </intent-filter>
         </activity>
 
-        <service android:name="de.teccheck.gear360app.bluetooth.BTSAService" />
+        <service android:name=".bluetooth.BTSAService" />
 
-        <receiver android:name="com.samsung.android.sdk.accessory.RegisterUponInstallReceiver" >
+        <receiver android:name="com.samsung.android.sdk.accessory.RegisterUponInstallReceiver">
             <intent-filter>
                 <action android:name="com.samsung.accessory.action.REGISTER_AGENT" />
             </intent-filter>
         </receiver>
-        <receiver android:name="com.samsung.android.sdk.accessory.ServiceConnectionIndicationBroadcastReceiver" >
+        <receiver android:name="com.samsung.android.sdk.accessory.ServiceConnectionIndicationBroadcastReceiver">
             <intent-filter>
                 <action android:name="com.samsung.accessory.action.SERVICE_CONNECTION_REQUESTED" />
             </intent-filter>
@@ -47,7 +60,6 @@
         <meta-data
             android:name="AccessoryServicesLocation"
             android:value="/res/xml/accessoryservices.xml" />
-
     </application>
 
 </manifest>

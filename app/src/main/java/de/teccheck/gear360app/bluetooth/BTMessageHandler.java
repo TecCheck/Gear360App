@@ -6,14 +6,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import de.teccheck.gear360app.Gear360Settings;
-import de.teccheck.gear360app.MainActivity;
 import de.teccheck.gear360app.Utils;
 
 import static de.teccheck.gear360app.bluetooth.BTMessages.*;
 
-public class BTResponder {
+public class BTMessageHandler {
 
-    public static final String TAG = "G360_" + BTResponder.class.getSimpleName();
+    public static final String TAG = "G360_" + BTMessageHandler.class.getSimpleName();
 
     public static void conformAndResponseCommandJson(byte[] data) {
         JSONObject jSONObject = null;
@@ -49,12 +48,12 @@ public class BTResponder {
                     handleDefault(jSONObject);
                     break;
             }
+            BTMessageLogger.logIncommingMessage(jSONObject);
         }
     }
 
     private static void handleDefault(JSONObject jsonObject){
         Log.i(TAG, "Message: \n" + Utils.getPrettyJsonStringFromByteData(jsonObject.toString()));
-
     }
 
     private static void handleRemoteShotReponse(JSONObject jsonObject){
@@ -100,6 +99,13 @@ public class BTResponder {
         Gear360Settings.fwType = message.getFwType();
         Gear360Settings.modelName = message.getModelName();
         Gear360Settings.modelVersion = message.getModelVersion();
+        Gear360Settings.channel = message.getChannel();
+        Gear360Settings.wifiDirectSSID = message.getWifiDirectSSID();
+        Gear360Settings.softApSSID = message.getSoftApSSID();
+        Gear360Settings.softApPsword = message.getSoftApPsword();
+        Gear360Settings.securityType = message.getSecurityType();
+        Gear360Settings.serialNum = message.getSerialNumber();
+        Gear360Settings.uniqueNum = message.getUniqueNumber();
     }
 
     private static void handleCommandMessage(JSONObject jsonObject){

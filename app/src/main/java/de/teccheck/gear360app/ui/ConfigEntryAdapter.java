@@ -1,4 +1,4 @@
-package de.teccheck.gear360app;
+package de.teccheck.gear360app.ui;
 
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -13,8 +13,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import de.sematre.fastreflection.FastReflection;
+import de.teccheck.gear360app.Gear360Settings;
+import de.teccheck.gear360app.R;
 
-class ConfigEntryAdapter extends RecyclerView.Adapter<ConfigEntryAdapter.ViewHolder> {
+public class ConfigEntryAdapter extends RecyclerView.Adapter<ConfigEntryAdapter.ViewHolder> {
 
     public static final String TAG = "G360_" + ConfigEntryAdapter.class.getSimpleName();
 

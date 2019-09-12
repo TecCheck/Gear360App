@@ -1167,7 +1167,7 @@ public class BTMessages {
     }
 
     //unused
-    public static final class BTReleaseMsg implements JsonSerializable {
+    public static final class BTReleaseMsg extends BTMessage {
         public static final String DESCRIPTION = "description";
         public static final String ENUM = "enum";
         public static final String MSG_ID = "msgId";
@@ -1358,7 +1358,7 @@ public class BTMessages {
         }
     }
 
-    public static final class BTWidgetGPSMsg implements JsonSerializable {
+    public static final class BTWidgetGPSMsg extends BTMessage {
         public static final String ARRAY = "array";
         public static final String DESCRIPTION = "description";
         public static final String ENUM = "enum";
@@ -1428,7 +1428,7 @@ public class BTMessages {
         }
     }
 
-    public static final class BTWidgetInfoMsg implements JsonSerializable {
+    public static final class BTWidgetInfoMsg extends BTMessage {
         public static final String AUTO_POWEROFF = "auto-poweroff";
         public static final String AVAILABLE_MEMORY = "available-memory";
         public static final String BATTERY = "battery";
@@ -1623,7 +1623,7 @@ public class BTMessages {
     }
 
     //originally named DeviceDescriptinUrlMsg
-    public static final class DeviceDescriptionUrlMsg implements JsonSerializable {
+    public static final class DeviceDescriptionUrlMsg extends BTMessage {
         public static final String DESCRIPTION = "description";
         public static final String MSG_ID = "msgId";
         public static final String PROPERTIES = "properties";
@@ -1640,7 +1640,7 @@ public class BTMessages {
         }
     }
 
-    public static final class NotificationMsg implements JsonSerializable {
+    public static final class NotificationMsg extends BTMessage {
         public static final String DESCRIPTION = "description";
         public static final String MSG_ID = "msgId";
         public static final String NOTIFY = "notify";

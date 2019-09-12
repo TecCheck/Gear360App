@@ -3,21 +3,22 @@ package de.teccheck.gear360app.bluetooth;
 import android.util.Log;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import de.teccheck.gear360app.Gear360Settings;
-import de.teccheck.gear360app.MainActivity;
 import de.teccheck.gear360app.Utils;
 
 import static de.teccheck.gear360app.bluetooth.BTMessages.*;
 
-public class BTSender {
+public class BTMessageSender {
 
-    public static final String TAG = "G360_" + BTSender.class.getSimpleName();
+    public static final String TAG = "G360_" + BTMessageSender.class.getSimpleName();
 
     public static void sendMessage(BTMessage message, BTService service, int channel) {
         try {
             Log.d(TAG, "Sending: \n" + Utils.getPrettyJsonStringFromByteData(message.toJSON().toString()));
             service.send(channel, message.toJSON().toString());
+            BTMessageLogger.logOutgoingMessage((JSONObject) message.toJSON());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -53,11 +54,21 @@ public class BTSender {
         sendMessage(message, service, 204);
     }
 
-    //gives back some state infos of the camera
-    public static void sendBTInfoRequest(BTService service){
+    //gives some infos about the phone to the camera
+    public static void sendPhoneInfo(BTService service){
         String versionName = "1.2.00.8";
         BTInfoMsg message = new BTInfoMsg(IDS.DEVICE_INFO_WIFI_DIRECT_ENUM_FALSE, "100", IDS.DEVICE_INFO_WIFI_DIRECT_ENUM_FALSE, "100", versionName,false);
         sendMessage(message,service, 204);
+    }
+
+    public static void sendWidgetInfoRequest(BTService service){
+        BTWidgetInfoMsg message = new BTWidgetInfoMsg();
+        sendMessage(message,service, 204);
+    }
+
+    public static void sendDateTimeRequest(BTService service){
+        BTDateTimeMsg messsage = new BTDateTimeMsg(IDS.DATE_TIME_REQUEST_TITLE);
+        sendMessage(messsage, service, 204);
     }
 
     //no use right now

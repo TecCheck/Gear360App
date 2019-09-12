@@ -21,6 +21,7 @@ import de.teccheck.gear360app.R;
 public class BTSAService extends SAAgent {
 
     public static final String TAG = "G360_" + BTSAService.class.getSimpleName();
+    public BTService btService = null;
 
     private static final Class<ServiceConnection> SASOCKET_CLASS = ServiceConnection.class;
     private final IBinder mBinder = new LocalBinder();
@@ -31,6 +32,15 @@ public class BTSAService extends SAAgent {
 
     public BTSAService() {
         super(TAG, SASOCKET_CLASS);
+    }
+
+    public BTSAService(BTService btService) {
+        super(TAG, SASOCKET_CLASS);
+        this.btService = btService;
+    }
+
+    public void setBtService(BTService btService){
+        this.btService = btService;
     }
 
     @Override
@@ -76,6 +86,7 @@ public class BTSAService extends SAAgent {
     protected void onServiceConnectionRequested(SAPeerAgent peerAgent) {
         if (peerAgent != null) {
             acceptServiceConnectionRequest(peerAgent);
+
         }
     }
 
@@ -160,7 +171,7 @@ public class BTSAService extends SAAgent {
 
         @Override
         public void onReceive(int channelId, byte[] data) {
-            BTResponder.conformAndResponseCommandJson(data);
+            BTMessageHandler.conformAndResponseCommandJson(data);
         }
 
         @Override
