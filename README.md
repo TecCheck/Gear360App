@@ -20,6 +20,21 @@ The app is more or less a alpha version. Things are being tested, the original a
 The app needs the [Samsung Accessory SDK](https://developer.samsung.com/galaxy-watch/develop/sdk) to work.
 The file Addon.jar is currently unused, you can just remove it form the build.gradle file.
 
+### How to get the app running
+For connecting to the Gear360 you need the original Gear360 app.
+* Open the Samsung Gear360 App and click connect
+* When the Camera is connected close the app by double tapping the back button
+* Open the Gear360App and click connect
+* The camera should be connected
+If you whant to stream live video:
+* You first need to get the wifi password of the camera. You can get it if you set the camera in Google Street View mode. To do that you need to power the camera off. Then Power it on angain. Long press the Bluetooth/Menu Button. The click on that button again until you see Google StreetView on the screen. Press the red button and then the camera should display the password (should be an long number). I recomend to write it on a note. 
+* Power the camera off and on and connect to the camera as mentioned above
+* Click on Dev Home then on Functions and then Live View
+* Connect to the cameras wifi with the password you got earlier
+* Wait a few seconds once it's connected.
+* Go back to the app and click on Live Activity.
+* You should seen the live stream
+
 ### Help is welcome
 If you whant to help me feel free to create an Issue or Pull reqest.
 Thanks and have a great day ;)
