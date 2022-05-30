@@ -10,13 +10,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout the code
-        uses: actions/checkout@v2
-      - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.8
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-      - name: Build the app
-        run: ./gradlew assembleDebug
+    - uses: actions/checkout@v2
+    - name: Setup JDK 11
+      uses: actions/setup-java@v1
+      with:
+        java-version: 11
+    - name: Accept sdk license
+      run: yes | sdkmanager --licenses
+    - name: Build with Gradle
+      run: gradle assembleDebug --stacktrace
+    - name: Upload APK
+      uses: actions/upload-artifact@v2
+      with:
+        name: Debug APK
+        path: app/build/outputs/apk/debug/app-debug.apk
