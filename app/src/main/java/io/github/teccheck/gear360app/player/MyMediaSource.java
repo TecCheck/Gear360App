@@ -3,6 +3,9 @@ package io.github.teccheck.gear360app.player;
 import android.os.Handler;
 import androidx.annotation.Nullable;
 
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.analytics.PlayerId;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
@@ -12,6 +15,7 @@ import com.google.android.exoplayer2.upstream.TransferListener;
 import java.io.IOException;
 
 public class MyMediaSource implements MediaSource {
+
     @Override
     public void addEventListener(Handler handler, MediaSourceEventListener eventListener) {
 
@@ -23,12 +27,32 @@ public class MyMediaSource implements MediaSource {
     }
 
     @Override
-    public void prepareSource(SourceInfoRefreshListener listener, @Nullable TransferListener mediaTransferListener) {
+    public void addDrmEventListener(Handler handler, DrmSessionEventListener eventListener) {
+
+    }
+
+    @Override
+    public void removeDrmEventListener(DrmSessionEventListener eventListener) {
+
+    }
+
+    @Override
+    public MediaItem getMediaItem() {
+        return null;
+    }
+
+    @Override
+    public void prepareSource(MediaSourceCaller caller, @Nullable TransferListener mediaTransferListener, PlayerId playerId) {
 
     }
 
     @Override
     public void maybeThrowSourceInfoRefreshError() throws IOException {
+
+    }
+
+    @Override
+    public void enable(MediaSourceCaller caller) {
 
     }
 
@@ -43,7 +67,12 @@ public class MyMediaSource implements MediaSource {
     }
 
     @Override
-    public void releaseSource(SourceInfoRefreshListener listener) {
+    public void disable(MediaSourceCaller caller) {
+
+    }
+
+    @Override
+    public void releaseSource(MediaSourceCaller caller) {
 
     }
 }

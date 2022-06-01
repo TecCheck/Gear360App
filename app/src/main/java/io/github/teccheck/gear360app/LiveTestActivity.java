@@ -11,11 +11,6 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceView;
 
-import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
