@@ -1,6 +1,6 @@
 package de.teccheck.gear360app.dev;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
 import de.teccheck.gear360app.R;
