@@ -2,12 +2,7 @@
     <string name="app_name">Gear360App</string>
 
     <string name="hello_world">Hello Accessory!</string>
-    <string name="ConnectionEstablishedMsg">Service Connection with HelloAccessory(P) has been established.</string>
-    <string name="ConnectionTerminateddMsg">Service Connection with HelloAccessory(P) has been terminated.</string>
-    <string name="ConnectionAlreadyExist">Service Connection has already been existed!!!</string>
-    <string name="ConnectionAlreadyDisconnected">Service Connection has already been disconnected!!!</string>
     <string name="ConnectionFailure">Service Connection Failure</string>
-    <string name="ConnectionAcceptedMsg">Service Connection from HelloAccessory(C) has been accepted.</string>
     <string name="NoPeersFound">No peers have been found!!!</string>
     <string name="buttonConnect">Connect</string>
     <string name="buttonDisconnect">Disconnect</string>

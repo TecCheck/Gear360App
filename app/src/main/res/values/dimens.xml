@@ -1,4 +1,7 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="icon_size">30dp</dimen>
+
+    <dimen name="dot_image_size">24dp</dimen>
+    <dimen name="dot_image_padding">6dp</dimen>
 </resources>

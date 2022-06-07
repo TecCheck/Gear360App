@@ -4,10 +4,20 @@
     <color name="colorPrimaryDark">#1565C0</color>
     <color name="colorAccent">#7CB342</color>
 
-    <color name="green">#7CB342</color>
+    <color name="_green">#7CB342</color>
     <color name="blue">#039BE5</color>
     <color name="pink">#D81B60</color>
     <color name="orange">#FB8C00</color>
-    <color name="yellow">#FFB300</color>
+    <color name="_yellow">#FFB300</color>
     <color name="purple">#8E24AA</color>
+
+    <color name="red">#ff4d64</color>
+    <color name="yellow">#d2ff4d</color>
+    <color name="green">#32ffa7</color>
+    <color name="black">#151f2b</color>
+    <color name="white">#fff</color>
+
+    <color name="primary">@color/red</color>
+    <color name="secondary">@color/green</color>
+    <color name="background">@color/black</color>
 </resources>

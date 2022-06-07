@@ -1284,7 +1284,7 @@ public class BTMessages {
             this.mDescriptionValue = descriptionValue;
         }
 
-        public Object toJSON() throws JSONException {
+        public JSONObject toJSON() throws JSONException {
             JSONObject json = new JSONObject();
             json.put("title", this.mTitle);
             json.put("description", this.mDescription);
