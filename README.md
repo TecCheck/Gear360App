@@ -1,6 +1,9 @@
 # Gear360App
 A Gear 360 app that is opensource and should work better than the original one
 
+### Important Note
+Be sure to always have `[MAJOR].[MINOR]` version numbers in your `accessoryservices.xml` file. Otherwise Samsung Accessory Service **will** crash.
+
 ### The goal of this app
 This app should be smaller, not as resource intensive and comatible with most of the android devices out there.
 And of course it's open source.
