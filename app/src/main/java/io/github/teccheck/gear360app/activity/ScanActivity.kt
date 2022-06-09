@@ -20,7 +20,7 @@ import com.google.android.material.chip.Chip
 import io.github.teccheck.gear360app.R
 
 private const val TAG = "ScanActivity"
-private const val SCAN_PERIOD: Long = 3000
+private const val SCAN_PERIOD: Long = 10000
 
 
 class ScanActivity : AppCompatActivity() {
@@ -57,6 +57,12 @@ class ScanActivity : AppCompatActivity() {
         this.bluetoothLeScanner = bluetoothAdapter.bluetoothLeScanner
 
         startRefresh()
+    }
+
+    override fun onDestroy() {
+        scanning = false
+        bluetoothLeScanner.stopScan(leScanCallback)
+        super.onDestroy()
     }
 
     private fun startRefresh() {

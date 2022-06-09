@@ -6,7 +6,6 @@ import android.os.*
 import android.util.Log
 import com.samsung.android.sdk.accessorymanager.SamAccessoryManager
 import com.samsung.android.sdk.accessorymanager.SamAccessoryManager.AccessoryEventListener
-import com.samsung.android.sdk.accessorymanager.SamAccessoryManager.ERROR_ACCESSORY_ALREADY_CONNECTED
 import com.samsung.android.sdk.accessorymanager.SamDevice
 
 private const val TAG = "BTMSAService"
@@ -17,11 +16,13 @@ private const val MSG_DISCONNECT_DEVICE = 3
 
 private const val MSG_DATA_DEVICE_ADDRESS = "address"
 
+private const val SA_TRANSPORT_TYPE = SamAccessoryManager.TRANSPORT_BT
+
 class BTMSAService : Service() {
     private val binder: IBinder = LocalBinder()
 
-    private lateinit var handlerThread: HandlerThread
-    private lateinit var handler: SAHandler
+    private var handlerThread: HandlerThread? = null
+    private var handler: SAHandler? = null
 
     private var samAccessoryManager: SamAccessoryManager? = null
     private var statusCallback: StatusCallback? = null
@@ -31,18 +32,20 @@ class BTMSAService : Service() {
         Log.d(TAG, "onCreate")
 
         handlerThread = HandlerThread("$TAG SAThread")
-        handlerThread.start()
-        if (handlerThread.looper != null) {
-            handler = SAHandler(handlerThread.looper)
+        handlerThread?.let {
+            it.start()
+            if (it.looper != null)
+                handler = SAHandler(it.looper)
         }
-        handler.sendEmptyMessage(MSG_START_SAM)
+        handler?.sendEmptyMessage(MSG_START_SAM)
     }
 
     override fun onDestroy() {
         Log.d(TAG, "onDestroy")
-        handlerThread.let {
+        handlerThread?.let {
             it.quit()
             it.interrupt()
+            handlerThread = null
         }
 
         samAccessoryManager?.release()
@@ -50,23 +53,32 @@ class BTMSAService : Service() {
     }
 
     fun setStatusCallback(statusCallback: StatusCallback) {
+        Log.d(TAG, "setStatusCallback")
         this.statusCallback = statusCallback
     }
 
     fun connect(address: String) {
+        Log.d(TAG, "connect $address")
+        samAccessoryManager?.connect(address, SA_TRANSPORT_TYPE)
+        return
+
         val message = Message()
         message.what = MSG_CONNECT_DEVICE
         message.data = Bundle()
         message.data.putString(MSG_DATA_DEVICE_ADDRESS, address)
-        handler.sendMessage(message)
+        handler?.sendMessage(message)
     }
 
     fun disconnect(address: String) {
+        Log.d(TAG, "disconnect $address")
+        samAccessoryManager?.disconnect(address, SA_TRANSPORT_TYPE)
+        return
+
         val message = Message()
         message.what = MSG_DISCONNECT_DEVICE
         message.data = Bundle()
         message.data.putString(MSG_DATA_DEVICE_ADDRESS, address)
-        handler.sendMessage(message)
+        handler?.sendMessage(message)
     }
 
     override fun onBind(intent: Intent?): IBinder {

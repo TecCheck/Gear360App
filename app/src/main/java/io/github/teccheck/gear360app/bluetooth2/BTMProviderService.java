@@ -3,7 +3,6 @@ package io.github.teccheck.gear360app.bluetooth2;
 import android.content.Context;
 import android.util.Log;
 
-import com.samsung.android.sdk.accessory.SA;
 import com.samsung.android.sdk.accessory.SAAgent;
 import com.samsung.android.sdk.accessory.SAAgentV2;
 import com.samsung.android.sdk.accessory.SAPeerAgent;
@@ -18,22 +17,24 @@ public class BTMProviderService extends SAAgentV2 {
 
     private BTMProviderConnection providerConnection = null;
     private StatusCallback callback = null;
+    private boolean isConnected = false;
 
     public BTMProviderService(Context context) {
         super(TAG, context, BTMProviderConnection.class);
-
-        SA mAccessory = new SA();
-        try {
-            mAccessory.initialize(getApplicationContext());
-            mAccessory.isFeatureEnabled(0);
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage(), e);
-        }
+        Log.d(TAG, "BTMProviderService");
     }
 
     public void setup(StatusCallback callback) {
+        Log.d(TAG, "setup");
         this.callback = callback;
-        findPeerAgents();
+    }
+
+    public void findSaPeers() {
+        Log.d(TAG, "findSaPeers");
+        if (!isConnected) {
+            isConnected = true;
+            findPeerAgents();
+        }
     }
 
     public void sendData(int channel, byte[] data) {
@@ -50,21 +51,26 @@ public class BTMProviderService extends SAAgentV2 {
     }
 
     public boolean closeConnection() {
+        Log.d(TAG, "closeConnection");
         if (providerConnection == null)
             return false;
 
         providerConnection.close();
         providerConnection = null;
+
+        releaseAgent();
         return true;
     }
 
     @Override
     protected void onFindPeerAgentsResponse(SAPeerAgent[] peerAgents, int result) {
         Log.d(TAG, "onFindPeerAgentsResponse " + Arrays.toString(peerAgents) + " " + result);
-        if ((result == SAAgent.PEER_AGENT_FOUND) && (peerAgents != null))
-            for (SAPeerAgent peerAgent : peerAgents)
-                requestServiceConnection(peerAgent);
 
+        if ((result == SAAgent.PEER_AGENT_FOUND) && (peerAgents != null)) {
+            for (SAPeerAgent peerAgent : peerAgents) {
+                requestServiceConnection(peerAgent);
+            }
+        }
     }
 
     @Override
@@ -75,48 +81,44 @@ public class BTMProviderService extends SAAgentV2 {
     }
 
     @Override
-    protected void onServiceConnectionResponse(SAPeerAgent peerAgent, SASocket socket, int result) {
-        Log.d(TAG, "onServiceConnectionResponse " + peerAgent + " " + socket + " " + result);
-        if (result == SAAgent.CONNECTION_SUCCESS) {
-            providerConnection = (BTMProviderConnection) socket;
-            if (callback != null)
-                callback.onConnectDevice(peerAgent.getAccessory().getName(), peerAgent.getPeerId(), peerAgent.getAccessory().getProductId());
-        } else if (result == SAAgent.CONNECTION_ALREADY_EXIST) {
-            if (callback != null)
-                callback.onError(result);
-        }
+    protected void onError(SAPeerAgent peerAgent, String errorMessage, int errorCode) {
+        super.onError(peerAgent, errorMessage, errorCode);
+        Log.d(TAG, "onError " + peerAgent + " " + errorMessage + " " + errorCode);
     }
 
     @Override
-    protected void onPeerAgentsUpdated(SAPeerAgent[] saPeerAgents, int result) {
-        //super.onPeerAgentsUpdated(saPeerAgents, i);
-        Log.d(TAG, "onPeerAgentsUpdated " + Arrays.toString(saPeerAgents) + " " + result);
+    protected void onServiceConnectionResponse(SAPeerAgent peerAgent, SASocket socket, int result) {
+        Log.d(TAG, "onServiceConnectionResponse " + peerAgent + " " + socket + " " + result);
+        if (result == SAAgentV2.CONNECTION_SUCCESS) {
+            if (socket != null) {
+                providerConnection = (BTMProviderConnection) socket;
+                Log.d(TAG, "setting up provider connection");
+            }
+
+        } else if (result == SAAgentV2.CONNECTION_ALREADY_EXIST) {
+            Log.d(TAG, "Agent already connected");
+        }
     }
 
     public class BTMProviderConnection extends SASocket {
         public BTMProviderConnection() {
             super(BTMProviderConnection.class.getName());
+            Log.d(TAG, "BTMProviderConnection");
         }
 
         @Override
         public void onReceive(int channelId, byte[] data) {
             Log.d(TAG, "onReceive (" + channelId + "):\n" + new String(data));
-            if (callback != null)
-                callback.onReceive(channelId, data);
         }
 
         @Override
         public void onError(int channelId, String errorString, int error) {
             Log.d(TAG, "onError " + channelId + " " + errorString + " " + error);
-            //callback.onError(error);
         }
 
         @Override
         public void onServiceConnectionLost(int errorCode) {
             Log.d(TAG, "onServiceConnectionLost " + errorCode);
-            if (callback != null)
-                callback.onServiceDisconnection();
-            BTMProviderService.this.closeConnection();
         }
     }
 

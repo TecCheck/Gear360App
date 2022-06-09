@@ -35,12 +35,12 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer-dash:2.17.1'
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.17.1'
     implementation 'com.google.android.exoplayer:exoplayer-smoothstreaming:2.17.1'
-    //implementation files('sdk/sdk-v1.0.0.jar')
-    //implementation files('sdk/accessory-v2.6.1.jar')
+    implementation files('sdk/sdk-v1.0.0.jar')
+    implementation files('sdk/accessory-v2.6.1.jar')
     //implementation files('sdk/accessory-v2.6.1 addon.jar')
 
-    //implementation files('sdk/Addon.jar')
-    implementation files('sdk/Samsung Accesory.jar')
+    implementation files('sdk/Addon.jar')
+    //implementation files('sdk/Samsung Accesory.jar')
 
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 

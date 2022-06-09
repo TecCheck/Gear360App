@@ -64,6 +64,20 @@
 
         <service android:name=".bluetooth2.BTService" />
         <service android:name=".bluetooth2.BTMSAService" />
+        <service android:name=".bluetooth2.Gear360Service" />
+
+        <service android:name="com.samsung.android.sdk.accessory.SAService" />
+        <service
+            android:name="com.samsung.android.sdk.accessory.SAJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <receiver
+            android:name="com.samsung.android.sdk.accessory.ServiceConnectionIndicationBroadcastReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.samsung.accessory.action.SERVICE_CONNECTION_REQUESTED" />
+            </intent-filter>
+        </receiver>
 
         <meta-data
             android:name="AccessoryServicesLocation"
@@ -72,7 +86,7 @@
         <!-- unused -->
         <!--
         <service android:name=".bluetooth2.BleService" />
-        <service android:name=".bluetooth2.Gear360Service" />
+
 
 
         <activity android:name=".LiveTestActivity" />

@@ -36,25 +36,41 @@ class BTService : Service() {
 
     private val btmsaStatusCallback = object : BTMSAService.StatusCallback {
         override fun onAccessoryConnected(device: SamDevice) {
+            Log.d(TAG, "onAccessoryConnected $device")
             SAAgentV2.requestAgent(
                 applicationContext,
-                BTMProviderService::class.java.name, agentCallback
+                BTMProviderService::class.java.name,
+                agentCallback
             )
         }
 
-        override fun onAccessoryDisconnected(device: SamDevice, reason: Int) {}
+        override fun onAccessoryDisconnected(device: SamDevice, reason: Int) {
+            Log.d(TAG, "onAccessoryDisconnected $device, $reason")
+        }
 
-        override fun onError(device: SamDevice, reason: Int) {}
+        override fun onError(device: SamDevice, reason: Int) {
+            Log.d(TAG, "onError$device, $reason")
+        }
     }
 
     private val btmStatusCallback = object : BTMProviderService.StatusCallback {
-        override fun onConnectDevice(name: String?, peer: String?, product: String?) {}
+        override fun onConnectDevice(name: String?, peer: String?, product: String?) {
+            Log.d(TAG, "onConnectDevice $name, $peer, $product")
+            sendPhoneInfo()
+        }
 
-        override fun onError(result: Int) {}
+        override fun onError(result: Int) {
+            Log.d(TAG, "onError $result")
+        }
 
-        override fun onReceive(channelId: Int, data: ByteArray?) {}
+        override fun onReceive(channelId: Int, data: ByteArray?) {
+            Log.d(TAG, "onReceive $channelId, $data")
+        }
 
-        override fun onServiceDisconnection() {}
+        override fun onServiceDisconnection() {
+            Log.d(TAG, "onServiceDisconnection")
+            btmProviderService = null
+        }
 
     }
 
@@ -63,10 +79,11 @@ class BTService : Service() {
             Log.d(TAG, "Agent available: $agent")
             btmProviderService = agent as BTMProviderService
             btmProviderService?.setup(btmStatusCallback)
-            sendPhoneInfo()
         }
 
-        override fun onError(errorCode: Int, message: String) {}
+        override fun onError(errorCode: Int, message: String) {
+            Log.d(TAG, "onError $errorCode, $message")
+        }
     }
 
     override fun onCreate() {
@@ -84,26 +101,34 @@ class BTService : Service() {
 
     override fun onDestroy() {
         Log.d(TAG, "onDestroy")
+        super.onDestroy()
+        return
+
         btmProviderService?.let {
             it.closeConnection()
             it.releaseAgent()
             btmProviderService = null
         }
         unbindService(btmsaServiceConnection)
-        super.onDestroy()
+
     }
 
     fun connect(address: String) {
+        Log.d(TAG, "connect $address")
         // TODO: Check paired device?
         btmsaService?.connect(address)
     }
 
     fun disconnect(address: String) {
+        Log.d(TAG, "disconnect $address")
+        return
+
         btmsaService?.disconnect(address)
         btmProviderService?.releaseAgent()
     }
 
     fun sendPhoneInfo() {
+        Log.d(TAG, "sendPhoneInfo")
         val versionName = "1.2.00.8"
         val message = BTInfoMsg(
             IDS.DEVICE_INFO_WIFI_DIRECT_ENUM_FALSE,
@@ -117,6 +142,7 @@ class BTService : Service() {
     }
 
     fun sendTakeImage() {
+        Log.d(TAG, "sendTakeImage")
         val message = BTShotMsg(IDS.REMOTE_SHOT_REQUEST_MSGID, "capture")
         sendMessage(message)
     }
