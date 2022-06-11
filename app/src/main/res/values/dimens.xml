@@ -4,4 +4,7 @@
 
     <dimen name="dot_image_size">24dp</dimen>
     <dimen name="dot_image_padding">6dp</dimen>
+
+    <dimen name="connection_dots_size">4dp</dimen>
+    <dimen name="connection_dots_gap">7dp</dimen>
 </resources>

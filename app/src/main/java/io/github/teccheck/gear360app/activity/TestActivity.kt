@@ -62,11 +62,11 @@ class TestActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btn_phone_info).setOnClickListener {
-            gear360Service?.sendPhoneInfo()
+            gear360Service?.messageSender?.sendPhoneInfo()
         }
 
         findViewById<Button>(R.id.btn_picture).setOnClickListener {
-            gear360Service?.sendTakeImage()
+            //gear360Service?.messageSender?.sendTakeImage()
         }
     }
 

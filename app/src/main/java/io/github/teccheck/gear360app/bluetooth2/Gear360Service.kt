@@ -15,11 +15,12 @@ import io.github.teccheck.gear360app.bluetooth.BTMessages
 private const val TAG = "Gear360Service"
 private const val SA_TRANSPORT_TYPE = SamAccessoryManager.TRANSPORT_BT
 
-class Gear360Service : Service() {
+class Gear360Service : Service(), MessageSender.Sender {
 
     private val binder = LocalBinder()
 
     private var connectedDeviceAddress: String? = null
+    private var callback: Callback? = null;
 
     private var samAccessoryManager: SamAccessoryManager? = null
     private val samListener = object : SamAccessoryManager.AccessoryEventListener {
@@ -44,6 +45,7 @@ class Gear360Service : Service() {
     private val btmStatusCallback = object : BTMProviderService.StatusCallback {
         override fun onConnectDevice(name: String?, peer: String?, product: String?) {
             Log.d(TAG, "onConnectDevice $name, $peer, $product")
+            callback?.onDeviceConnected()
         }
 
         override fun onError(result: Int) {
@@ -56,90 +58,17 @@ class Gear360Service : Service() {
 
         override fun onServiceDisconnection() {
             Log.d(TAG, "onServiceDisconnection")
+            btmProviderService?.closeConnection()
+            callback?.onDisconnected()
         }
     }
+
+    val messageSender = MessageSender(this)
 
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "onCreate")
 
-        startSamAccessoryManager()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d(TAG, "onDestroy")
-        releaseSamAccessoryManager()
-    }
-
-    fun connect(address: String) {
-        samAccessoryManager?.let {
-            it.connect(address, SA_TRANSPORT_TYPE)
-            connectedDeviceAddress = address
-        }
-    }
-
-    fun disconnect(address: String? = connectedDeviceAddress) {
-        btmProviderService?.releaseAgent()
-
-        address?.let {
-            samAccessoryManager?.disconnect(it, SA_TRANSPORT_TYPE)
-        }
-    }
-
-    fun setupBTMProviderService() {
-        Log.d(TAG, "setupProviderService")
-        val requestAgentCallback = object : SAAgentV2.RequestAgentCallback {
-            override fun onAgentAvailable(agent: SAAgentV2) {
-                Log.d(TAG, "Agent available: $agent")
-                btmProviderService = agent as BTMProviderService
-                btmProviderService?.setup(btmStatusCallback)
-                findSAPeers()
-            }
-
-            override fun onError(errorCode: Int, message: String) {
-                Log.d(TAG, "requestAgentCallback onError $errorCode, $message")
-            }
-        }
-
-        SAAgentV2.requestAgent(
-            applicationContext,
-            BTMProviderService::class.java.name,
-            requestAgentCallback
-        )
-    }
-
-    fun findSAPeers() {
-        Log.d(TAG, "findSAPeers")
-        btmProviderService?.findSaPeers()
-    }
-
-    fun sendPhoneInfo() {
-        Log.d(TAG, "sendPhoneInfo")
-        val versionName = "1.2.00.8"
-        val message = BTMessages.BTInfoMsg(
-            BTMessages.IDS.DEVICE_INFO_WIFI_DIRECT_ENUM_FALSE,
-            "100",
-            BTMessages.IDS.DEVICE_INFO_WIFI_DIRECT_ENUM_FALSE,
-            "100",
-            versionName,
-            false
-        )
-        sendMessage(message)
-    }
-
-    fun sendTakeImage() {
-        Log.d(TAG, "sendTakeImage")
-        val message = BTMessages.BTShotMsg(BTMessages.IDS.REMOTE_SHOT_REQUEST_MSGID, "capture")
-        sendMessage(message)
-    }
-
-    private fun sendMessage(btMessage: BTMessages.BTMessage) {
-        Log.d(TAG, "sendMessage $btmProviderService")
-        btmProviderService?.sendData(204, btMessage.toJSON().toString().encodeToByteArray())
-    }
-
-    private fun startSamAccessoryManager() {
         // SamAccessoryManager needs to be initialised on another thread for whatever reason
         val handlerThread = HandlerThread("$TAG SAThread")
         handlerThread.start()
@@ -154,9 +83,55 @@ class Gear360Service : Service() {
         }
     }
 
-    private fun releaseSamAccessoryManager() {
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "onDestroy")
+
         disconnect()
         samAccessoryManager?.release()
+    }
+
+    fun setCallback(callback: Callback) {
+        this.callback = callback
+    }
+
+    fun connect(address: String) {
+        samAccessoryManager?.let {
+            it.connect(address, SA_TRANSPORT_TYPE)
+            connectedDeviceAddress = address
+        }
+    }
+
+    fun disconnect(address: String? = connectedDeviceAddress) {
+        btmProviderService?.closeConnection()
+        btmProviderService?.releaseAgent()
+        address?.let { samAccessoryManager?.disconnect(it, SA_TRANSPORT_TYPE) }
+    }
+
+    private fun setupBTMProviderService() {
+        Log.d(TAG, "setupProviderService")
+        val requestAgentCallback = object : SAAgentV2.RequestAgentCallback {
+            override fun onAgentAvailable(agent: SAAgentV2) {
+                Log.d(TAG, "Agent available: $agent")
+                btmProviderService = agent as BTMProviderService
+                btmProviderService?.setup(btmStatusCallback)
+                btmProviderService?.findSaPeers()
+            }
+
+            override fun onError(errorCode: Int, message: String) {
+                Log.d(TAG, "requestAgentCallback onError $errorCode, $message")
+            }
+        }
+
+        SAAgentV2.requestAgent(
+            applicationContext,
+            BTMProviderService::class.java.name,
+            requestAgentCallback
+        )
+    }
+
+    override fun send(channelId: Int, data: ByteArray) {
+        btmProviderService?.sendData(204, data)
     }
 
     override fun onBind(intent: Intent): IBinder {
@@ -172,5 +147,11 @@ class Gear360Service : Service() {
         fun getService(): Gear360Service {
             return this@Gear360Service
         }
+    }
+
+    interface Callback {
+        fun onDeviceConnected()
+
+        fun onDisconnected()
     }
 }

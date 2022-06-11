@@ -10,7 +10,7 @@ import android.util.Log
 import com.samsung.android.sdk.accessory.SAAgentV2
 import com.samsung.android.sdk.accessory.SAAgentV2.RequestAgentCallback
 import com.samsung.android.sdk.accessorymanager.SamDevice
-import io.github.teccheck.gear360app.bluetooth.BTMessages.*
+import io.github.teccheck.gear360app.bluetooth.BTMessages
 
 private const val TAG = "BTService"
 
@@ -130,10 +130,10 @@ class BTService : Service() {
     fun sendPhoneInfo() {
         Log.d(TAG, "sendPhoneInfo")
         val versionName = "1.2.00.8"
-        val message = BTInfoMsg(
-            IDS.DEVICE_INFO_WIFI_DIRECT_ENUM_FALSE,
+        val message = BTMessages.BTInfoMsg(
+            BTMessages.IDS.DEVICE_INFO_WIFI_DIRECT_ENUM_FALSE,
             "100",
-            IDS.DEVICE_INFO_WIFI_DIRECT_ENUM_FALSE,
+            BTMessages.IDS.DEVICE_INFO_WIFI_DIRECT_ENUM_FALSE,
             "100",
             versionName,
             false
@@ -143,11 +143,11 @@ class BTService : Service() {
 
     fun sendTakeImage() {
         Log.d(TAG, "sendTakeImage")
-        val message = BTShotMsg(IDS.REMOTE_SHOT_REQUEST_MSGID, "capture")
+        val message = BTMessages.BTShotMsg(BTMessages.IDS.REMOTE_SHOT_REQUEST_MSGID, "capture")
         sendMessage(message)
     }
 
-    private fun sendMessage(btMessage: BTMessage) {
+    private fun sendMessage(btMessage: BTMessages.BTMessage) {
         Log.d(TAG, "sendMessage $btmProviderService")
         btmProviderService?.sendData(204, btMessage.toJSON().toString().encodeToByteArray())
     }

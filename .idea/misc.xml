@@ -3,7 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable-v24/connection_dot.xml" value="0.1435" />
         <entry key="app/src/main/res/drawable/ic_bluetooth_connected_black_24dp.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/ic_connect_g360_2016.xml" value="0.136" />
+        <entry key="app/src/main/res/drawable/ic_connect_g360_2017.xml" value="0.136" />
+        <entry key="app/src/main/res/drawable/ic_connect_phone.xml" value="0.136" />
+        <entry key="app/src/main/res/drawable/ic_dots.xml" value="0.1505" />
         <entry key="app/src/main/res/drawable/ic_gear_360_2016.xml" value="0.1265" />
         <entry key="app/src/main/res/drawable/ic_gear_360_2017.xml" value="0.1265" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.117" />
@@ -11,11 +16,14 @@
         <entry key="app/src/main/res/drawable/ic_test.xml" value="0.1265" />
         <entry key="app/src/main/res/drawable/instruction_shape_focused.xml" value="0.1265" />
         <entry key="app/src/main/res/drawable/instruction_shape_unfocused.xml" value="0.1265" />
+        <entry key="app/src/main/res/layout/activity_home.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/activity_live_test.xml" value="0.18" />
         <entry key="app/src/main/res/layout/activity_scan.xml" value="0.33" />
         <entry key="app/src/main/res/layout/activity_start.xml" value="0.15579710144927536" />
         <entry key="app/src/main/res/layout/activity_test.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_welcome.xml" value="0.33" />
         <entry key="app/src/main/res/layout/config_entry_item.xml" value="0.15579710144927536" />
+        <entry key="app/src/main/res/layout/connection_dots.xml" value="0.18568840579710144" />
         <entry key="app/src/main/res/layout/fragment_connect_instruction.xml" value="0.25" />
         <entry key="app/src/main/res/layout/list_entry_device.xml" value="0.33" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.15" />
@@ -62,7 +70,7 @@
       </value>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_X" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_16" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

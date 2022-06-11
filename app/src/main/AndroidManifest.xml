@@ -48,7 +48,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.Gear360App">
-
+        <activity
+            android:name=".activity.HomeActivity"
+            android:exported="false" />
         <activity
             android:name=".activity.StartActivity"
             android:exported="true">
@@ -58,14 +60,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".activity.ScanActivity" />
         <activity android:name=".activity.TestActivity" />
 
         <service android:name=".bluetooth2.BTService" />
         <service android:name=".bluetooth2.BTMSAService" />
         <service android:name=".bluetooth2.Gear360Service" />
-
         <service android:name="com.samsung.android.sdk.accessory.SAService" />
         <service
             android:name="com.samsung.android.sdk.accessory.SAJobService"
@@ -83,34 +83,7 @@
             android:name="AccessoryServicesLocation"
             android:value="/res/xml/accessoryservices.xml" />
 
-        <!-- unused -->
-        <!--
-        <service android:name=".bluetooth2.BleService" />
-
-
-
         <activity android:name=".LiveTestActivity" />
-        <activity android:name=".dev.DevFunctions" />
-
-        <activity
-            android:name=".dev.DevGearStateActivity"
-            android:label="@string/title_activity_dev_gearstate" />
-
-        <activity
-            android:name=".dev.DevBTDebugActivity"
-            android:label="@string/title_activity_dev_btdebugger" />
-
-        <activity
-            android:name=".dev.DevHomeActivity"
-            android:label="@string/title_activity_dev_home" />
-
-        <activity
-            android:name=".MainActivity"
-            android:exported="true" />
-
-        <service android:name=".bluetooth.BTSAService" />
-
-        -->
     </application>
 
 </manifest>

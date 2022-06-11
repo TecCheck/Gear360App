@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">Gear360App</string>
 
+    <string name="btn_connect">Connect</string>
+    <string name="btn_camera">Camera</string>
+    <string name="btn_camera_description">Take 360° pictures and videos.</string>
+
     <string name="hello_world">Hello Accessory!</string>
     <string name="ConnectionFailure">Service Connection Failure</string>
     <string name="NoPeersFound">No peers have been found!!!</string>

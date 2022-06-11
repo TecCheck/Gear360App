@@ -1,0 +1,156 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector
+            android:width="44dp"
+            android:height="4dp"
+            android:viewportWidth="44"
+            android:viewportHeight="4">
+            <path
+                android:name="0"
+                android:fillColor="@color/connection_indicators_disconnected"
+                android:pathData="M4,2A2,2 0,0 1,2 4,2 2,0 0,1 0,2 2,2 0,0 1,2 0,2 2,0 0,1 4,2Z"
+                android:strokeWidth="2"
+                android:strokeLineJoin="round" />
+            <path
+                android:name="1"
+                android:fillColor="@color/connection_indicators_disconnected"
+                android:pathData="M14,2A2,2 0,0 1,12 4,2 2,0 0,1 10,2 2,2 0,0 1,12 0,2 2,0 0,1 14,2Z"
+                android:strokeWidth="2"
+                android:strokeLineJoin="round" />
+            <path
+                android:name="2"
+                android:fillColor="@color/connection_indicators_disconnected"
+                android:pathData="M24,2A2,2 0,0 1,22 4,2 2,0 0,1 20,2 2,2 0,0 1,22 0,2 2,0 0,1 24,2Z"
+                android:strokeWidth="2"
+                android:strokeLineJoin="round" />
+            <path
+                android:name="3"
+                android:fillColor="@color/connection_indicators_disconnected"
+                android:pathData="M34,2A2,2 0,0 1,32 4,2 2,0 0,1 30,2 2,2 0,0 1,32 0,2 2,0 0,1 34,2Z"
+                android:strokeWidth="2"
+                android:strokeLineJoin="round" />
+            <path
+                android:name="4"
+                android:fillColor="@color/connection_indicators_disconnected"
+                android:pathData="M44,2A2,2 0,0 1,42 4,2 2,0 0,1 40,2 2,2 0,0 1,42 0,2 2,0 0,1 44,2Z"
+                android:strokeWidth="2"
+                android:strokeLineJoin="round" />
+        </vector>
+    </aapt:attr>
+
+    <target android:name="0">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="300"
+                    android:interpolator="@android:interpolator/linear"
+                    android:propertyName="fillColor"
+                    android:startOffset="0"
+                    android:valueFrom="@color/connection_indicators_disconnected"
+                    android:valueTo="@color/connection_indicators_connected"
+                    android:valueType="colorType" />
+                <objectAnimator
+                    android:duration="300"
+                    android:interpolator="@android:interpolator/linear"
+                    android:propertyName="fillColor"
+                    android:startOffset="900"
+                    android:valueFrom="@color/connection_indicators_connected"
+                    android:valueTo="@color/connection_indicators_disconnected"
+                    android:valueType="colorType" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <target android:name="1">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="300"
+                    android:interpolator="@android:interpolator/linear"
+                    android:propertyName="fillColor"
+                    android:startOffset="200"
+                    android:valueFrom="@color/connection_indicators_disconnected"
+                    android:valueTo="@color/connection_indicators_connected"
+                    android:valueType="colorType" />
+                <objectAnimator
+                    android:duration="300"
+                    android:interpolator="@android:interpolator/linear"
+                    android:propertyName="fillColor"
+                    android:startOffset="1100"
+                    android:valueFrom="@color/connection_indicators_connected"
+                    android:valueTo="@color/connection_indicators_disconnected"
+                    android:valueType="colorType" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <target android:name="2">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="300"
+                    android:interpolator="@android:interpolator/linear"
+                    android:propertyName="fillColor"
+                    android:startOffset="400"
+                    android:valueFrom="@color/connection_indicators_disconnected"
+                    android:valueTo="@color/connection_indicators_connected"
+                    android:valueType="colorType" />
+                <objectAnimator
+                    android:duration="300"
+                    android:interpolator="@android:interpolator/linear"
+                    android:propertyName="fillColor"
+                    android:startOffset="1300"
+                    android:valueFrom="@color/connection_indicators_connected"
+                    android:valueTo="@color/connection_indicators_disconnected"
+                    android:valueType="colorType" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <target android:name="3">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="300"
+                    android:interpolator="@android:interpolator/linear"
+                    android:propertyName="fillColor"
+                    android:startOffset="600"
+                    android:valueFrom="@color/connection_indicators_disconnected"
+                    android:valueTo="@color/connection_indicators_connected"
+                    android:valueType="colorType" />
+                <objectAnimator
+                    android:duration="300"
+                    android:interpolator="@android:interpolator/linear"
+                    android:propertyName="fillColor"
+                    android:startOffset="1500"
+                    android:valueFrom="@color/connection_indicators_connected"
+                    android:valueTo="@color/connection_indicators_disconnected"
+                    android:valueType="colorType" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <target android:name="4">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="300"
+                    android:interpolator="@android:interpolator/linear"
+                    android:propertyName="fillColor"
+                    android:startOffset="800"
+                    android:valueFrom="@color/connection_indicators_disconnected"
+                    android:valueTo="@color/connection_indicators_connected"
+                    android:valueType="colorType" />
+                <objectAnimator
+                    android:duration="300"
+                    android:interpolator="@android:interpolator/linear"
+                    android:propertyName="fillColor"
+                    android:startOffset="1700"
+                    android:valueFrom="@color/connection_indicators_connected"
+                    android:valueTo="@color/connection_indicators_disconnected"
+                    android:valueType="colorType" />
+            </set>
+        </aapt:attr>
+    </target>
+</animated-vector>

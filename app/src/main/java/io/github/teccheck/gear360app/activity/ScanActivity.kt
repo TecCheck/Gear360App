@@ -84,7 +84,7 @@ class ScanActivity : AppCompatActivity() {
     }
 
     private fun onItemClick(index: Int, bluetoothDevice: BluetoothDevice) {
-        val intent = Intent(this, TestActivity::class.java)
+        val intent = Intent(this, HomeActivity::class.java)
         intent.putExtra(EXTRA_MAC_ADDRESS, bluetoothDevice.address)
         startActivity(intent)
     }

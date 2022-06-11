@@ -91,8 +91,11 @@ public class BTMProviderService extends SAAgentV2 {
         Log.d(TAG, "onServiceConnectionResponse " + peerAgent + " " + socket + " " + result);
         if (result == SAAgentV2.CONNECTION_SUCCESS) {
             if (socket != null) {
-                providerConnection = (BTMProviderConnection) socket;
                 Log.d(TAG, "setting up provider connection");
+                providerConnection = (BTMProviderConnection) socket;
+
+                if (callback != null)
+                    callback.onConnectDevice(peerAgent.getAccessory().getName(), peerAgent.getPeerId(), peerAgent.getAccessory().getProductId());
             }
 
         } else if (result == SAAgentV2.CONNECTION_ALREADY_EXIST) {
@@ -109,16 +112,22 @@ public class BTMProviderService extends SAAgentV2 {
         @Override
         public void onReceive(int channelId, byte[] data) {
             Log.d(TAG, "onReceive (" + channelId + "):\n" + new String(data));
+            if (callback != null)
+                callback.onReceive(channelId, data);
         }
 
         @Override
         public void onError(int channelId, String errorString, int error) {
             Log.d(TAG, "onError " + channelId + " " + errorString + " " + error);
+            if (callback != null)
+                callback.onError(error);
         }
 
         @Override
         public void onServiceConnectionLost(int errorCode) {
             Log.d(TAG, "onServiceConnectionLost " + errorCode);
+            if (callback != null)
+                callback.onServiceDisconnection();
         }
     }
 
