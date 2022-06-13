@@ -2,10 +2,7 @@ package io.github.teccheck.gear360app.bluetooth2
 
 import android.app.Service
 import android.content.Intent
-import android.os.Binder
-import android.os.Handler
-import android.os.HandlerThread
-import android.os.IBinder
+import android.os.*
 import android.util.Log
 import com.samsung.android.sdk.accessory.SAAgentV2
 import com.samsung.android.sdk.accessorymanager.SamAccessoryManager
@@ -15,12 +12,14 @@ import io.github.teccheck.gear360app.bluetooth.BTMessages
 private const val TAG = "Gear360Service"
 private const val SA_TRANSPORT_TYPE = SamAccessoryManager.TRANSPORT_BT
 
-class Gear360Service : Service(), MessageSender.Sender {
+class Gear360Service : Service() {
 
     private val binder = LocalBinder()
 
+    private val handler = Handler(Looper.getMainLooper())
+
     private var connectedDeviceAddress: String? = null
-    private var callback: Callback? = null;
+    private var callback: Callback? = null
 
     private var samAccessoryManager: SamAccessoryManager? = null
     private val samListener = object : SamAccessoryManager.AccessoryEventListener {
@@ -45,6 +44,7 @@ class Gear360Service : Service(), MessageSender.Sender {
     private val btmStatusCallback = object : BTMProviderService.StatusCallback {
         override fun onConnectDevice(name: String?, peer: String?, product: String?) {
             Log.d(TAG, "onConnectDevice $name, $peer, $product")
+            handler.postDelayed({ messageSender.sendPhoneInfo() }, 2000)
             callback?.onDeviceConnected()
         }
 
@@ -54,6 +54,7 @@ class Gear360Service : Service(), MessageSender.Sender {
 
         override fun onReceive(channelId: Int, data: ByteArray?) {
             Log.d(TAG, "onReceive $channelId, $data")
+            messageHandler.onReceive(channelId, data)
         }
 
         override fun onServiceDisconnection() {
@@ -63,11 +64,22 @@ class Gear360Service : Service(), MessageSender.Sender {
         }
     }
 
-    val messageSender = MessageSender(this)
+    private val messageListener = object : MessageHandler.MessageListener {
+        override fun onMessageReceive(message: BTMessages.BTMessage) {}
+    }
+
+    val messageHandler = MessageHandler()
+    val messageSender = MessageSender(object : MessageSender.Sender {
+        override fun send(channelId: Int, data: ByteArray) {
+            btmProviderService?.send(channelId, data)
+        }
+    })
 
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "onCreate")
+
+        messageHandler.addMessageListener(messageListener)
 
         // SamAccessoryManager needs to be initialised on another thread for whatever reason
         val handlerThread = HandlerThread("$TAG SAThread")
@@ -86,6 +98,8 @@ class Gear360Service : Service(), MessageSender.Sender {
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "onDestroy")
+
+        messageHandler.removeMessageListener(messageListener)
 
         disconnect()
         samAccessoryManager?.release()
@@ -128,10 +142,6 @@ class Gear360Service : Service(), MessageSender.Sender {
             BTMProviderService::class.java.name,
             requestAgentCallback
         )
-    }
-
-    override fun send(channelId: Int, data: ByteArray) {
-        btmProviderService?.sendData(204, data)
     }
 
     override fun onBind(intent: Intent): IBinder {

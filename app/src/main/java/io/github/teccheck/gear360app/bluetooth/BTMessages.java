@@ -231,12 +231,12 @@ public class BTMessages {
 
         Object toJSON() throws JSONException;
     }
-    
-    public static class BTMessage implements JsonSerializable{
+
+    public static class BTMessage implements JsonSerializable {
 
         @Override
         public void fromJSON(Object obj) throws JSONException {
-            
+
         }
 
         @Override
@@ -428,7 +428,7 @@ public class BTMessages {
             this.mEnumValue = enumValue;
             this.mDescriptionValue = descriptionValue;
         }
-        
+
         public Object toJSON() throws JSONException {
             JSONObject json = new JSONObject();
             json.put("title", this.mTitle);
@@ -455,7 +455,7 @@ public class BTMessages {
             JSONObject sub_json = new JSONObject();
             this.mMsgId = properties_json.getString("msgId");
 
-            switch (mMsgId){
+            switch (mMsgId) {
                 case IDS.FIRMWARE_DOWNLOAD_COMPLETE_INFO_MSGID:
                     sub_json = properties_json.getJSONObject("action");
                     break;
@@ -628,7 +628,7 @@ public class BTMessages {
         }
 
         public void fromJSON(Object obj) throws JSONException {
-            
+
             JSONObject functions_json = ((JSONObject) obj).getJSONObject("properties").getJSONObject("functions");
             int count = functions_json.getInt("count");
             JSONObject items_json = functions_json.getJSONObject("items");
@@ -984,7 +984,7 @@ public class BTMessages {
         String mWifidirectMac = "";
         String mfwDownloadURL = "";
 
-        public BTInfoMsg(){
+        public BTInfoMsg() {
 
         }
 
@@ -1517,7 +1517,7 @@ public class BTMessages {
                             JSONObject batteryState_json = item_json.getJSONObject(BATTERY_STATE);
                             if (batteryState_json != null) {
                                 mBatteryStateValue = batteryState_json.getString("description");
-                                switch (mBatteryStateValue){
+                                switch (mBatteryStateValue) {
                                     case "charge":
                                         Gear360Settings.batteryState = "On";
                                         break;
@@ -1569,7 +1569,7 @@ public class BTMessages {
                             memory_json = item_json.getJSONObject(CAPTURE_STATE);
                             if (memory_json != null) {
                                 mCaptureState = memory_json.getString("description");
-                                Gear360Settings.captureState =mCaptureState;
+                                Gear360Settings.captureState = mCaptureState;
                             }
                         }
                         if (!item_json.isNull(AUTO_POWEROFF)) {

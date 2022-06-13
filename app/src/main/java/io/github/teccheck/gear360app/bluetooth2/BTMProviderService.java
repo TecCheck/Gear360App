@@ -37,7 +37,7 @@ public class BTMProviderService extends SAAgentV2 {
         }
     }
 
-    public void sendData(int channel, byte[] data) {
+    public void send(int channel, byte[] data) {
         Log.d(TAG, "SendData: " + new String(data));
         if (providerConnection != null) {
             try {
@@ -128,6 +128,7 @@ public class BTMProviderService extends SAAgentV2 {
             Log.d(TAG, "onServiceConnectionLost " + errorCode);
             if (callback != null)
                 callback.onServiceDisconnection();
+            isConnected = false;
         }
     }
 
