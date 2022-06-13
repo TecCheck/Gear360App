@@ -65,7 +65,9 @@ class Gear360Service : Service() {
     }
 
     private val messageListener = object : MessageHandler.MessageListener {
-        override fun onMessageReceive(message: BTMessages.BTMessage) {}
+        override fun onMessageReceive(message: BTMessage) {
+            Log.d(TAG, "onMessageReceive")
+        }
     }
 
     val messageHandler = MessageHandler()

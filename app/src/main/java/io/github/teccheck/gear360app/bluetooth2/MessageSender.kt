@@ -1,14 +1,21 @@
 package io.github.teccheck.gear360app.bluetooth2
 
 import android.util.Log
+import io.github.teccheck.gear360app.Utils
 import io.github.teccheck.gear360app.bluetooth.BTMessages
 import io.github.teccheck.gear360app.bluetooth.BTMessages.*
 
 private const val TAG = "MessageSender"
 
-class MessageSender(val sender: Sender) {
+class MessageSender(private val sender: Sender) {
 
     fun sendPhoneInfo() {
+        val wifiMac = Utils.getWifiMacAddress()
+        val versionName = "1.2.00.8"
+        sendCommand2(BTInfoMsg(false, wifiMac, "test", versionName, false))
+    }
+
+    fun sendPhoneInfoOld() {
         Log.d(TAG, "sendPhoneInfo")
         val versionName = "1.2.00.8"
         val message = BTMessages.BTInfoMsg(
@@ -76,6 +83,10 @@ class MessageSender(val sender: Sender) {
 
     private fun sendCommand(btMessage: BTMessages.BTMessage) {
         sender.send(204, btMessage.toJSON().toString().encodeToByteArray())
+    }
+
+    private fun sendCommand2(message: BTMessage) {
+        sender.send(204, message.toJson().toString().encodeToByteArray())
     }
 
     interface Sender {
