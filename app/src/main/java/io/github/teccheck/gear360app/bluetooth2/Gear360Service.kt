@@ -66,6 +66,12 @@ class Gear360Service : Service() {
 
     private val messageListener = object : MessageHandler.MessageListener {
         override fun onMessageReceive(message: BTMessage) {
+            if (message is BTConfigMsg) {
+                gear360Configs.setConfigs(message.configs)
+
+                for (config in message.configs)
+                    Log.d(TAG, "Config: $config")
+            }
             Log.d(TAG, "onMessageReceive")
         }
     }
@@ -76,6 +82,8 @@ class Gear360Service : Service() {
             btmProviderService?.send(channelId, data)
         }
     })
+
+    val gear360Configs = Gear360Configs()
 
     override fun onCreate() {
         super.onCreate()
