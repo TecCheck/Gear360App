@@ -90,6 +90,10 @@ class HomeActivity : AppCompatActivity() {
             gear360Service?.messageSender?.sendLiveViewRequest()
         }
 
+        findViewById<LinearLayout>(R.id.layout_hardware).setOnClickListener {
+            startActivity(Intent(this, HardwareInfoActivity::class.java))
+        }
+
         findViewById<Button>(R.id.btn_test).setOnClickListener {
             startActivity(Intent(this, LiveTestActivity::class.java))
         }

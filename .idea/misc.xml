@@ -4,6 +4,8 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/drawable-v24/connection_dot.xml" value="0.1435" />
+        <entry key="app/src/main/res/drawable/ic_add_black_24dp.xml" value="0.136" />
+        <entry key="app/src/main/res/drawable/ic_apps_black_24dp.xml" value="0.136" />
         <entry key="app/src/main/res/drawable/ic_bluetooth_connected_black_24dp.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/ic_connect_g360_2016.xml" value="0.136" />
         <entry key="app/src/main/res/drawable/ic_connect_g360_2017.xml" value="0.136" />
@@ -16,7 +18,8 @@
         <entry key="app/src/main/res/drawable/ic_test.xml" value="0.1265" />
         <entry key="app/src/main/res/drawable/instruction_shape_focused.xml" value="0.1265" />
         <entry key="app/src/main/res/drawable/instruction_shape_unfocused.xml" value="0.1265" />
-        <entry key="app/src/main/res/layout/activity_home.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/activity_hardware_info.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/activity_home.xml" value="0.5" />
         <entry key="app/src/main/res/layout/activity_live_test.xml" value="0.18" />
         <entry key="app/src/main/res/layout/activity_scan.xml" value="0.33" />
         <entry key="app/src/main/res/layout/activity_start.xml" value="0.15579710144927536" />
@@ -26,6 +29,7 @@
         <entry key="app/src/main/res/layout/connection_dots.xml" value="0.18568840579710144" />
         <entry key="app/src/main/res/layout/fragment_connect_instruction.xml" value="0.25" />
         <entry key="app/src/main/res/layout/list_entry_device.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/list_entry_hardware.xml" value="0.5" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.15" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.18" />
       </map>

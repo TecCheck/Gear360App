@@ -17,8 +17,8 @@
     <color name="black">#151f2b</color>
     <color name="white">#fff</color>
 
-    <color name="primary">#ff891b</color>
-    <color name="secondary">#ff891b</color>
+    <color name="primary">#FF9531</color>
+    <color name="secondary">#FF9531</color>
     <color name="background">@color/black</color>
 
     <color name="connection_indicators_connected">@color/primary</color>

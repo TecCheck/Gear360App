@@ -4,6 +4,23 @@
     <string name="btn_connect">Connect</string>
     <string name="btn_camera">Camera</string>
     <string name="btn_camera_description">Take 360° pictures and videos.</string>
+    <string name="btn_hardware">Hardware info</string>
+    <string name="btn_hardware_description">View hardware information of your Gear 360</string>
+
+    <string name="hardware_model_name">Model name</string>
+    <string name="hardware_model_version">Firmware version</string>
+    <string name="hardware_channel">Wifi Channel</string>
+    <string name="hardware_wifi_direct_mac">Wifi Direct mac address</string>
+    <string name="hardware_ap_ssid">AP SSID</string>
+    <string name="hardware_ap_password">AP password</string>
+    <string name="hardware_board_revision">Board revision</string>
+    <string name="hardware_serial_number">Serial number</string>
+    <string name="hardware_unique_number">Unique number</string>
+    <string name="hardware_wifi_mac">Wifi mac address</string>
+    <string name="hardware_bt_mac">Bluetooth mac address</string>
+    <string name="hardware_fw_type">Firmware type</string>
+    <string name="hardware_fw_type_user">User</string>
+    <string name="hardware_fw_type_retail">Retail</string>
 
     <string name="hello_world">Hello Accessory!</string>
     <string name="ConnectionFailure">Service Connection Failure</string>
