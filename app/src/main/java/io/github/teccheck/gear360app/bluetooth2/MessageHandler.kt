@@ -16,13 +16,14 @@ class MessageHandler {
 
         try {
             val jsonObject = JSONObject(String(data))
-            val msgId = jsonObject.getJSONObject(KEY_PROPERTIES).getString(KEY_MSGID)
+            val msgId =
+                jsonObject.getJSONObject(MessageKeys.PROPERTIES).getString(MessageKeys.MSGID)
 
             when (msgId) {
-                CONFIG_INFO_MSGID -> {
+                MessageIds.CONFIG_INFO -> {
                     handleMessage(BTConfigMsg.fromJson(jsonObject))
                 }
-                DEVICE_INFO_MSGID -> {
+                MessageIds.DEVICE_INFO -> {
                     handleMessage(BTInfoRsp.fromJson(jsonObject))
                 }
                 else -> {

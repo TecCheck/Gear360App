@@ -1,21 +1,27 @@
 package io.github.teccheck.gear360app.bluetooth2
 
-import io.github.teccheck.gear360app.bluetooth.BTMessages.BTConfigInfoMsg
 import org.json.JSONObject
 
-private const val KEY_TITLE = "title"
-private const val KEY_DESCRIPTION = "description"
-private const val KEY_TYPE = "type"
-const val KEY_MSGID = "msgId"
-const val KEY_PROPERTIES = "properties"
+object MessageKeys {
+    const val TITLE = "title"
+    const val DESCRIPTION = "description"
+    const val TYPE = "type"
+    const val MSGID = "msgId"
+    const val PROPERTIES = "properties"
+}
 
-const val DEVICE_INFO_MSGID = "info"
-private const val DEVICE_INFO_TYPE = "object"
-private const val DEVICE_INFO_REQUEST_DESCRIPTION =
-    "Message structure in JSON for Phone Device information"
-private const val DEVICE_INFO_REQUEST_TITLE = "Phone Device information Message"
-
-const val CONFIG_INFO_MSGID = "config-info"
+object MessageIds {
+    const val DEVICE_INFO = "info"
+    const val CONFIG_INFO = "config-info"
+    const val WIDGET_INFO_REQ = "widget-info-req"
+    const val WIDGET_INFO_RSP = "widget-info-rsp"
+    const val DATE_TIME_REQ = "date-time-req"
+    const val DATE_TIME_RSP = "date-time-rsp"
+    const val COMMAND_REQ = "cmd-req"
+    const val COMMAND_RSP = "cmd-rsp"
+    const val DEVICE_DESC_URL = "device-desc-url"
+    const val BIGDATA_REQ = "bigdata-req"
+}
 
 abstract class BTMessage(
     private val title: String,
@@ -24,9 +30,9 @@ abstract class BTMessage(
 ) {
     open fun toJson(): JSONObject {
         val jsonObject = JSONObject()
-        jsonObject.put(KEY_TITLE, title)
-        jsonObject.put(KEY_DESCRIPTION, description)
-        jsonObject.put(KEY_TYPE, type)
+        jsonObject.put(MessageKeys.TITLE, title)
+        jsonObject.put(MessageKeys.DESCRIPTION, description)
+        jsonObject.put(MessageKeys.TYPE, type)
         return jsonObject
     }
 }
@@ -38,23 +44,22 @@ class BTInfoMsg(
     private val appVersion: String,
     private val retailMode: Boolean
 ) : BTMessage(
-    DEVICE_INFO_REQUEST_TITLE,
-    DEVICE_INFO_REQUEST_DESCRIPTION,
-    DEVICE_INFO_TYPE
+    "Phone Device information Message",
+    "Message structure in JSON for Phone Device information",
+    "object"
 ) {
-
     override fun toJson(): JSONObject {
         val jsonObject = super.toJson()
 
         val properties = JSONObject()
-        properties.put(KEY_MSGID, DEVICE_INFO_MSGID)
+        properties.put(MessageKeys.MSGID, MessageIds.DEVICE_INFO)
         properties.put(
             "wifi-direct",
             JSONObject()
                 .put("enum", wifiDirect.toString())
                 .put(
                     "ch-negotiation-wa",
-                    JSONObject().put(KEY_DESCRIPTION, "5G-GO")
+                    JSONObject().put(MessageKeys.DESCRIPTION, "5G-GO")
                 )
         )
         properties.put("wifi-mac-address", getJsonProperty(wifiMacAddress))
@@ -64,14 +69,14 @@ class BTInfoMsg(
         val opMode = if (retailMode) "retail" else "user"
         properties.put("op-mode", getJsonProperty(opMode))
 
-        jsonObject.put(KEY_PROPERTIES, properties)
+        jsonObject.put(MessageKeys.PROPERTIES, properties)
         return jsonObject
     }
 
     private fun getJsonProperty(value: String): JSONObject {
         return JSONObject()
-            .put(KEY_TYPE, "string")
-            .put(KEY_DESCRIPTION, value)
+            .put(MessageKeys.TYPE, "string")
+            .put(MessageKeys.DESCRIPTION, value)
     }
 }
 
@@ -84,12 +89,11 @@ class BTConfigMsg(
 
     companion object {
         fun fromJson(jsonObject: JSONObject): BTConfigMsg {
-            val title = jsonObject.getString(KEY_TITLE)
-            val description = jsonObject.getString(KEY_DESCRIPTION)
-            val type = jsonObject.getString(KEY_TYPE)
+            val title = jsonObject.getString(MessageKeys.TITLE)
+            val description = jsonObject.getString(MessageKeys.DESCRIPTION)
+            val type = jsonObject.getString(MessageKeys.TYPE)
 
-            val properties = jsonObject.getJSONObject(KEY_PROPERTIES)
-            val msgId = properties.getString(KEY_MSGID)
+            val properties = jsonObject.getJSONObject(MessageKeys.PROPERTIES)
 
             val functions = properties.getJSONObject("functions")
             val count: Int = functions.getInt("count")
@@ -99,7 +103,7 @@ class BTConfigMsg(
 
             for (i in 1..count) {
                 val config: JSONObject = items.getJSONObject(i.toString())
-                val name = config.getString(BTConfigInfoMsg.SUBTITLE)
+                val name = config.getString("sub-title")
                 val defaultValue = config.getString("default")
                 val values = config.getString("value").split(",".toRegex()).toTypedArray()
 
@@ -131,29 +135,29 @@ class BTInfoRsp(
 ) : BTMessage(title, description, type) {
     companion object {
         fun fromJson(jsonObject: JSONObject): BTInfoRsp {
-            val title = jsonObject.getString(KEY_TITLE)
-            val description = jsonObject.getString(KEY_DESCRIPTION)
-            val type = jsonObject.getString(KEY_TYPE)
+            val title = jsonObject.getString(MessageKeys.TITLE)
+            val description = jsonObject.getString(MessageKeys.DESCRIPTION)
+            val type = jsonObject.getString(MessageKeys.TYPE)
 
-            val properties = jsonObject.getJSONObject(KEY_PROPERTIES)
+            val properties = jsonObject.getJSONObject(MessageKeys.PROPERTIES)
 
             return BTInfoRsp(
                 title,
                 description,
                 type,
-                properties.getJSONObject("model-name").getString(KEY_DESCRIPTION),
-                properties.getJSONObject("model-version").getString(KEY_DESCRIPTION),
-                properties.getJSONObject("channel").getInt(KEY_DESCRIPTION),
-                properties.getJSONObject("wifi-direct-mac").getString(KEY_DESCRIPTION),
-                properties.getJSONObject("softap-ssid").getString(KEY_DESCRIPTION),
-                properties.getJSONObject("softap-psword").getString(KEY_DESCRIPTION),
-                properties.getJSONObject("board-revision").getString(KEY_DESCRIPTION),
-                properties.getJSONObject("serial-number").getString(KEY_DESCRIPTION),
-                properties.getJSONObject("unique-number").getString(KEY_DESCRIPTION),
-                properties.getJSONObject("wifi-mac").getString(KEY_DESCRIPTION),
-                properties.getJSONObject("bt-mac").getString(KEY_DESCRIPTION),
-                properties.getJSONObject("bt-fota-test-url").getString(KEY_DESCRIPTION),
-                properties.getJSONObject("fw-type").getInt(KEY_DESCRIPTION),
+                properties.getJSONObject("model-name").getString(MessageKeys.DESCRIPTION),
+                properties.getJSONObject("model-version").getString(MessageKeys.DESCRIPTION),
+                properties.getJSONObject("channel").getInt(MessageKeys.DESCRIPTION),
+                properties.getJSONObject("wifi-direct-mac").getString(MessageKeys.DESCRIPTION),
+                properties.getJSONObject("softap-ssid").getString(MessageKeys.DESCRIPTION),
+                properties.getJSONObject("softap-psword").getString(MessageKeys.DESCRIPTION),
+                properties.getJSONObject("board-revision").getString(MessageKeys.DESCRIPTION),
+                properties.getJSONObject("serial-number").getString(MessageKeys.DESCRIPTION),
+                properties.getJSONObject("unique-number").getString(MessageKeys.DESCRIPTION),
+                properties.getJSONObject("wifi-mac").getString(MessageKeys.DESCRIPTION),
+                properties.getJSONObject("bt-mac").getString(MessageKeys.DESCRIPTION),
+                properties.getJSONObject("bt-fota-test-url").getString(MessageKeys.DESCRIPTION),
+                properties.getJSONObject("fw-type").getInt(MessageKeys.DESCRIPTION),
             )
         }
     }
