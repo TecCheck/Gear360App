@@ -22,6 +22,9 @@ class MessageHandler {
                 CONFIG_INFO_MSGID -> {
                     handleMessage(BTConfigMsg.fromJson(jsonObject))
                 }
+                DEVICE_INFO_MSGID -> {
+                    handleMessage(BTInfoRsp.fromJson(jsonObject))
+                }
                 else -> {
                     Log.w(TAG, "Couldn't handle message with id $msgId")
                 }

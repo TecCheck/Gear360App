@@ -7,7 +7,6 @@ import android.util.Log
 import com.samsung.android.sdk.accessory.SAAgentV2
 import com.samsung.android.sdk.accessorymanager.SamAccessoryManager
 import com.samsung.android.sdk.accessorymanager.SamDevice
-import io.github.teccheck.gear360app.bluetooth.BTMessages
 
 private const val TAG = "Gear360Service"
 private const val SA_TRANSPORT_TYPE = SamAccessoryManager.TRANSPORT_BT
@@ -68,11 +67,28 @@ class Gear360Service : Service() {
         override fun onMessageReceive(message: BTMessage) {
             if (message is BTConfigMsg) {
                 gear360Configs.setConfigs(message.configs)
+            } else if (message is BTInfoRsp) {
+                gear360Info = Gear360Info(
+                    message.modelName,
+                    message.modelVersion,
+                    message.channel,
+                    message.wifiDirectMac,
+                    message.apSSID,
+                    message.apPassword,
+                    message.boardRevision,
+                    message.serialNumber,
+                    message.uniqueNumber,
+                    message.wifiMac,
+                    message.btMac,
+                    message.btFotaTestUrl,
+                    message.fwType
+                )
 
-                for (config in message.configs)
-                    Log.d(TAG, "Config: $config")
+                Log.d(
+                    TAG,
+                    "Version: ${gear360Info?.getSemanticVersion()} -- ${gear360Info?.getVersionName()}"
+                )
             }
-            Log.d(TAG, "onMessageReceive")
         }
     }
 
@@ -84,6 +100,7 @@ class Gear360Service : Service() {
     })
 
     val gear360Configs = Gear360Configs()
+    var gear360Info: Gear360Info? = null
 
     override fun onCreate() {
         super.onCreate()

@@ -9,7 +9,7 @@ private const val KEY_TYPE = "type"
 const val KEY_MSGID = "msgId"
 const val KEY_PROPERTIES = "properties"
 
-private const val DEVICE_INFO_MSGID = "info"
+const val DEVICE_INFO_MSGID = "info"
 private const val DEVICE_INFO_TYPE = "object"
 private const val DEVICE_INFO_REQUEST_DESCRIPTION =
     "Message structure in JSON for Phone Device information"
@@ -107,6 +107,54 @@ class BTConfigMsg(
             }
 
             return BTConfigMsg(title, description, type, configs)
+        }
+    }
+}
+
+class BTInfoRsp(
+    title: String,
+    description: String,
+    type: String,
+    val modelName: String,
+    val modelVersion: String,
+    val channel: Int,
+    val wifiDirectMac: String,
+    val apSSID: String,
+    val apPassword: String,
+    val boardRevision: String,
+    val serialNumber: String,
+    val uniqueNumber: String,
+    val wifiMac: String,
+    val btMac: String,
+    val btFotaTestUrl: String,
+    val fwType: Int
+) : BTMessage(title, description, type) {
+    companion object {
+        fun fromJson(jsonObject: JSONObject): BTInfoRsp {
+            val title = jsonObject.getString(KEY_TITLE)
+            val description = jsonObject.getString(KEY_DESCRIPTION)
+            val type = jsonObject.getString(KEY_TYPE)
+
+            val properties = jsonObject.getJSONObject(KEY_PROPERTIES)
+
+            return BTInfoRsp(
+                title,
+                description,
+                type,
+                properties.getJSONObject("model-name").getString(KEY_DESCRIPTION),
+                properties.getJSONObject("model-version").getString(KEY_DESCRIPTION),
+                properties.getJSONObject("channel").getInt(KEY_DESCRIPTION),
+                properties.getJSONObject("wifi-direct-mac").getString(KEY_DESCRIPTION),
+                properties.getJSONObject("softap-ssid").getString(KEY_DESCRIPTION),
+                properties.getJSONObject("softap-psword").getString(KEY_DESCRIPTION),
+                properties.getJSONObject("board-revision").getString(KEY_DESCRIPTION),
+                properties.getJSONObject("serial-number").getString(KEY_DESCRIPTION),
+                properties.getJSONObject("unique-number").getString(KEY_DESCRIPTION),
+                properties.getJSONObject("wifi-mac").getString(KEY_DESCRIPTION),
+                properties.getJSONObject("bt-mac").getString(KEY_DESCRIPTION),
+                properties.getJSONObject("bt-fota-test-url").getString(KEY_DESCRIPTION),
+                properties.getJSONObject("fw-type").getInt(KEY_DESCRIPTION),
+            )
         }
     }
 }
