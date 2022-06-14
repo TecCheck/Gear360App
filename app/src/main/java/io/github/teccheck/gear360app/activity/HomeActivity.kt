@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -39,11 +40,15 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private val gear360ServiceCallback = object : Gear360Service.Callback {
+        override fun onSAMStarted() {
+            connect()
+        }
+
         override fun onDeviceConnected() {
             setGearConnectivityIndicator(ConnectionState.CONNECTED)
         }
 
-        override fun onDisconnected() {
+        override fun onDeviceDisconnected() {
             setGearConnectivityIndicator(ConnectionState.DISCONNECTED)
         }
     }
@@ -51,6 +56,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var connectionDots: ConnectionDots
     private lateinit var connectionDevice: ImageView
     private lateinit var connectionGear: ImageView
+    private lateinit var connectButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,20 +81,25 @@ class HomeActivity : AppCompatActivity() {
         val success = bindService(intent, gearServiceConnection, BIND_AUTO_CREATE)
         Log.d(TAG, "Gear360Service bound $success")
 
-        findViewById<Button>(R.id.btn_connect).setOnClickListener {
-            mac?.let {
-                Log.d(TAG, "Connect to $it")
-                gear360Service?.connect(it)
-                setGearConnectivityIndicator(ConnectionState.CONNECTING)
-            }
+        connectButton = findViewById(R.id.btn_connect)
+        connectButton.setOnClickListener {
+            connect()
         }
 
-        findViewById<LinearLayout>(R.id.layout_camera).setOnClickListener{
+        findViewById<LinearLayout>(R.id.layout_camera).setOnClickListener {
             gear360Service?.messageSender?.sendLiveViewRequest()
         }
 
         findViewById<Button>(R.id.btn_test).setOnClickListener {
             startActivity(Intent(this, LiveTestActivity::class.java))
+        }
+    }
+
+    private fun connect() {
+        intent.getStringExtra(EXTRA_MAC_ADDRESS)?.let {
+            Log.d(TAG, "Connect to $it")
+            gear360Service?.connect(it)
+            setGearConnectivityIndicator(ConnectionState.CONNECTING)
         }
     }
 
@@ -122,5 +133,10 @@ class HomeActivity : AppCompatActivity() {
         }
 
         connectionGear.imageTintList = ColorStateList.valueOf(color)
+
+        if (connectionState == ConnectionState.DISCONNECTED)
+            connectButton.visibility = View.VISIBLE
+        else
+            connectButton.visibility = View.GONE
     }
 }

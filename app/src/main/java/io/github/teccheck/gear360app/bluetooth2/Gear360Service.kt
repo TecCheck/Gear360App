@@ -33,6 +33,12 @@ class Gear360Service : Service() {
 
         override fun onError(device: SamDevice?, reason: Int) {
             Log.d(TAG, "samListener onError $device, $reason")
+            if (reason == SamAccessoryManager.ERROR_ACCESSORY_ALREADY_CONNECTED) {
+                Log.d(TAG, "Already connected")
+                setupBTMProviderService()
+            } else {
+                callback?.onDeviceDisconnected()
+            }
         }
 
         override fun onAccountLoggedIn(device: SamDevice) {}
@@ -59,7 +65,7 @@ class Gear360Service : Service() {
         override fun onServiceDisconnection() {
             Log.d(TAG, "onServiceDisconnection")
             btmProviderService?.closeConnection()
-            callback?.onDisconnected()
+            callback?.onDeviceDisconnected()
         }
     }
 
@@ -123,6 +129,7 @@ class Gear360Service : Service() {
         val handler = Handler(handlerThread.looper)
         handler.post {
             samAccessoryManager = SamAccessoryManager.getInstance(applicationContext, samListener)
+            Handler(Looper.getMainLooper()).post { callback?.onSAMStarted() }
             handlerThread.quitSafely()
         }
     }
@@ -192,8 +199,10 @@ class Gear360Service : Service() {
     }
 
     interface Callback {
+        fun onSAMStarted()
+
         fun onDeviceConnected()
 
-        fun onDisconnected()
+        fun onDeviceDisconnected()
     }
 }

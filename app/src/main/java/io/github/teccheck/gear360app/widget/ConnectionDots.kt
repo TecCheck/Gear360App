@@ -14,11 +14,14 @@ import io.github.teccheck.gear360app.utils.ConnectionState
 
 class ConnectionDots(context: Context, attrs: AttributeSet) : AppCompatImageView(context, attrs) {
 
+    var animating = false
+
     init {
         val animated = AnimatedVectorDrawableCompat.create(context, R.drawable.ic_dots)
         animated?.registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
             override fun onAnimationEnd(drawable: Drawable?) {
-                animated.start()
+                if (animating)
+                    animated.start()
             }
         })
         setImageDrawable(animated)
@@ -27,10 +30,12 @@ class ConnectionDots(context: Context, attrs: AttributeSet) : AppCompatImageView
     fun setDotState(dotState: ConnectionState) {
         when (dotState) {
             ConnectionState.CONNECTING -> {
+                animating = true
                 imageTintList = null
                 (drawable as AnimatedVectorDrawableCompat).start()
             }
             ConnectionState.CONNECTED -> {
+                animating = false
                 (drawable as AnimatedVectorDrawableCompat).stop()
 
                 val color = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -41,6 +46,7 @@ class ConnectionDots(context: Context, attrs: AttributeSet) : AppCompatImageView
                 imageTintList = ColorStateList.valueOf(color)
             }
             ConnectionState.DISCONNECTED -> {
+                animating = false
                 (drawable as AnimatedVectorDrawableCompat).stop()
                 imageTintList = null
             }
