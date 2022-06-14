@@ -88,6 +88,10 @@ class Gear360Service : Service() {
                     TAG,
                     "Version: ${gear360Info?.getSemanticVersion()} -- ${gear360Info?.getVersionName()}"
                 )
+            } else if (message is BTWidgetReq) {
+                messageSender.sendWidgetInfoRequest()
+            } else if (message is BTWidgetRsp) {
+                gear360Status = message.gear360Status
             }
         }
     }
@@ -101,6 +105,7 @@ class Gear360Service : Service() {
 
     val gear360Configs = Gear360Configs()
     var gear360Info: Gear360Info? = null
+    var gear360Status: Gear360Status? = null
 
     override fun onCreate() {
         super.onCreate()

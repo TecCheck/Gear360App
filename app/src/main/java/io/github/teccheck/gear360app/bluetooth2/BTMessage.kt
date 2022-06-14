@@ -162,3 +162,74 @@ class BTInfoRsp(
         }
     }
 }
+
+class BTWidgetReq() : BTMessage(
+    "Widget info request Message",
+    "Message structure in JSON for Widget Info request",
+    "object"
+) {
+    override fun toJson(): JSONObject {
+        val jsonObject = super.toJson()
+
+        val properties = JSONObject().put(MessageKeys.MSGID, MessageIds.WIDGET_INFO_REQ)
+        jsonObject.put(MessageKeys.PROPERTIES, properties)
+
+        return jsonObject
+    }
+
+    companion object {
+        fun fromJson(jsonObject: JSONObject): BTWidgetReq {
+            return BTWidgetReq()
+        }
+    }
+}
+
+class BTWidgetRsp(
+    title: String,
+    description: String,
+    type: String,
+    val gear360Status: Gear360Status
+) : BTMessage(title, description, type) {
+
+    companion object {
+        fun fromJson(jsonObject: JSONObject): BTWidgetRsp {
+            val title = jsonObject.getString(MessageKeys.TITLE)
+            val description = jsonObject.getString(MessageKeys.DESCRIPTION)
+            val type = jsonObject.getString(MessageKeys.TYPE)
+
+            val properties = jsonObject.getJSONObject(MessageKeys.PROPERTIES)
+            val items = properties.getJSONObject("list").getJSONObject("items")
+
+            val battery = items.getJSONObject("battery").getInt(MessageKeys.DESCRIPTION)
+            val batteryState =
+                items.getJSONObject("battery-state").getString(MessageKeys.DESCRIPTION)
+            val totalMemory = items.getJSONObject("total-memory").getInt(MessageKeys.DESCRIPTION)
+            val usedMemory = items.getJSONObject("used-memory").getInt(MessageKeys.DESCRIPTION)
+            val freeMemory = items.getJSONObject("free-memory").getInt(MessageKeys.DESCRIPTION)
+            val recordState = items.getJSONObject("record-state").getString(MessageKeys.DESCRIPTION)
+            val captureState =
+                items.getJSONObject("capture-state").getString(MessageKeys.DESCRIPTION)
+            val autoPowerOff =
+                items.getJSONObject("auto-poweroff").getString(MessageKeys.DESCRIPTION)
+            val recordableTime =
+                items.getJSONObject("recordable-time").getInt(MessageKeys.DESCRIPTION)
+            val capturableCount =
+                items.getJSONObject("capturable-count").getInt(MessageKeys.DESCRIPTION)
+
+            val status = Gear360Status(
+                battery,
+                batteryState,
+                totalMemory,
+                usedMemory,
+                freeMemory,
+                recordState,
+                captureState,
+                autoPowerOff,
+                recordableTime,
+                capturableCount
+            )
+
+            return BTWidgetRsp(title, description, type, status)
+        }
+    }
+}
