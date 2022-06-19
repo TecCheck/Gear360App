@@ -43,7 +43,7 @@ public class BTMProviderService extends SAAgentV2 {
             try {
                 providerConnection.send(channel, data);
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, e.getMessage(), e);
             }
         } else {
             Log.w(TAG, "providerConnection is null");

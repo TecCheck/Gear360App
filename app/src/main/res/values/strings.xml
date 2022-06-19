@@ -1,12 +1,56 @@
 <resources>
     <string name="app_name">Gear360App</string>
 
+    <!-- HomeActivity -->
     <string name="btn_connect">Connect</string>
     <string name="btn_camera">Camera</string>
     <string name="btn_camera_description">Take 360° pictures and videos.</string>
+    <string name="btn_remote_control">Remote control</string>
+    <string name="btn_remote_control_description">Control your Gear 360 from a distance</string>
     <string name="btn_hardware">Hardware info</string>
     <string name="btn_hardware_description">View hardware information of your Gear 360</string>
 
+    <!-- RemoteControlActivity -->
+    <string name="mode">Mode</string>
+    <string name="mode_photo">Photo</string>
+    <string name="mode_video">Video</string>
+    <string name="mode_looping_video">Looping Video</string>
+    <string name="mode_time_lapse">Time Lapse</string>
+
+    <string name="btn_take_photo">Take Photo</string>
+    <string name="btn_capture_video">Capture Video</string>
+    <string name="btn_capture_looping_video">Capture Looping Video</string>
+    <string name="btn_capture_time_lapse">Capture Time Lapse</string>
+    <string name="btn_capture_stop">Stop</string>
+
+    <string name="looping_video_time">Looping Video Record Time</string>
+    <string name="looping_video_5min">5min</string>
+    <string name="looping_video_30min">30min</string>
+    <string name="looping_video_60min">60min</string>
+    <string name="looping_video_max">Max</string>
+
+    <string name="camera_settings">Camera Settings</string>
+    <string name="led_indicators">LED Indicators</string>
+
+    <string name="timer">Timer</string>
+    <string name="timer_off">Off</string>
+    <string name="timer_2s">2sec</string>
+    <string name="timer_5s">5sec</string>
+    <string name="timer_10s">10sec</string>
+
+    <string name="beep_volume">Beep volume</string>
+    <string name="beep_high">High</string>
+    <string name="beep_mid">Mid</string>
+    <string name="beep_low">Low</string>
+    <string name="beep_off">Off</string>
+
+    <string name="auto_power_off">Auto power off</string>
+    <string name="auto_power_off_1min">1min</string>
+    <string name="auto_power_off_3min">3min</string>
+    <string name="auto_power_off_5min">5min</string>
+    <string name="auto_power_off_30min">30min</string>
+
+    <!-- HardwareInfoActivity -->
     <string name="hardware_model_name">Model name</string>
     <string name="hardware_model_version">Firmware version</string>
     <string name="hardware_channel">Wifi Channel</string>

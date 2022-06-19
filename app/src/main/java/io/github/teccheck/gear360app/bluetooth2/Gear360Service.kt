@@ -114,8 +114,8 @@ class Gear360Service : Service() {
     var gear360Status: Gear360Status? = null
 
     override fun onCreate() {
-        super.onCreate()
         Log.d(TAG, "onCreate")
+        super.onCreate()
 
         messageHandler.addMessageListener(messageListener)
 
@@ -134,9 +134,14 @@ class Gear360Service : Service() {
         }
     }
 
+    override fun onRebind(intent: Intent?) {
+        Log.d(TAG, "onRebind")
+        super.onRebind(intent)
+    }
+
     override fun onDestroy() {
-        super.onDestroy()
         Log.d(TAG, "onDestroy")
+        super.onDestroy()
 
         messageHandler.removeMessageListener(messageListener)
 

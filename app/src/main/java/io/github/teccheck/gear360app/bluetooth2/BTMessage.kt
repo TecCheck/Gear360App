@@ -8,6 +8,7 @@ object MessageKeys {
     const val TYPE = "type"
     const val MSGID = "msgId"
     const val PROPERTIES = "properties"
+    const val OBJECT = "object"
 }
 
 object MessageIds {
@@ -230,6 +231,62 @@ class BTWidgetRsp(
             )
 
             return BTWidgetRsp(title, description, type, status)
+        }
+    }
+}
+
+class BTCommandReq(private val action: Action) : BTMessage(
+    "Command request Message",
+    "Message structure in JSON for Command request",
+    MessageKeys.OBJECT
+) {
+    override fun toJson(): JSONObject {
+        val jsonObject = super.toJson()
+
+        val properties = JSONObject()
+        properties.put(MessageKeys.MSGID, MessageIds.COMMAND_REQ)
+        properties.put("action", action.toJson())
+
+        jsonObject.put(MessageKeys.PROPERTIES, properties)
+
+        return jsonObject
+    }
+
+    open class Action(private val enum: String, private val description: String) {
+        open fun toJson(): JSONObject {
+            val jsonObject = JSONObject()
+            jsonObject.put("enum", enum)
+            jsonObject.put(MessageKeys.DESCRIPTION, description)
+            return jsonObject
+        }
+    }
+
+    class ConfigAction(
+        enum: String,
+        description: String,
+        private val configName: String,
+        private val configValue: String
+    ) :
+        Action(enum, description) {
+
+        constructor(configName: String, configValue: String) : this(
+            "execute",
+            "config",
+            configName,
+            configValue
+        )
+
+        override fun toJson(): JSONObject {
+            val jsonObject = super.toJson()
+
+            val config = JSONObject()
+            config.put(MessageKeys.DESCRIPTION, configValue)
+
+            val items = JSONObject()
+            items.put(configName, config)
+
+            jsonObject.put("items", items)
+            return jsonObject
         }
     }
 }

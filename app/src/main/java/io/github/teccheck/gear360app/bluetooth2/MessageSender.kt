@@ -1,6 +1,5 @@
 package io.github.teccheck.gear360app.bluetooth2
 
-import android.util.Log
 import io.github.teccheck.gear360app.Utils
 import io.github.teccheck.gear360app.bluetooth.BTMessages
 import io.github.teccheck.gear360app.bluetooth.BTMessages.*
@@ -15,20 +14,6 @@ class MessageSender(private val sender: Sender) {
         sendCommand2(BTInfoMsg(false, wifiMac, "test", versionName, false))
     }
 
-    fun sendPhoneInfoOld() {
-        Log.d(TAG, "sendPhoneInfo")
-        val versionName = "1.2.00.8"
-        val message = BTMessages.BTInfoMsg(
-            BTMessages.IDS.DEVICE_INFO_WIFI_DIRECT_ENUM_FALSE,
-            "100",
-            BTMessages.IDS.DEVICE_INFO_WIFI_DIRECT_ENUM_FALSE,
-            "100",
-            versionName,
-            false
-        )
-        sendCommand(message)
-    }
-
     fun sendWidgetInfoRequest() {
         sendCommand(BTWidgetInfoMsg())
     }
@@ -37,8 +22,35 @@ class MessageSender(private val sender: Sender) {
         sendCommand(BTDateTimeMsg(IDS.DATE_TIME_REQUEST_TITLE))
     }
 
-    fun sendChangeModeRequest() {
+    fun sendChangeMode(mode: CameraMode) {
+        sendConfigChangeCommand(ConfigConstants.MODE, mode.value)
+    }
 
+    fun sendChangeLoopingVideoTime(timer: LoopingVideoTime) {
+        sendConfigChangeCommand(ConfigConstants.LOOPING_VIDEO_TIME, timer.value)
+    }
+
+    fun sendSetLedIndicators(active: Boolean) {
+        val value = if (active) ConfigConstants.LED_ON else ConfigConstants.LED_OFF
+        sendConfigChangeCommand(ConfigConstants.LED_INDICATOR, value)
+    }
+
+    fun sendChangeTimerTimer(time: TimerTime) {
+        sendConfigChangeCommand(ConfigConstants.TIMER, time.value)
+    }
+
+    fun sendChangeBeepVolume(volume: BeepVolume) {
+        sendConfigChangeCommand(ConfigConstants.BEEP, volume.value)
+    }
+
+    fun sendChangePowerOffTime(time: AutoPowerOffTime) {
+        sendConfigChangeCommand(ConfigConstants.AUTO_POWER_OFF, time.value)
+    }
+
+    private fun sendConfigChangeCommand(configName: String, configValue: String) {
+        val action = BTCommandReq.ConfigAction(configName, configValue)
+        val message = BTCommandReq(action)
+        sendCommand2(message)
     }
 
     fun sendShotRequest(isPhotoMode: Boolean, isRecording: Boolean) {
@@ -78,7 +90,9 @@ class MessageSender(private val sender: Sender) {
     }
 
     fun sendLiveViewRequest() {
-        sendCommand(BTCommandMsg("cmd-req", "execute", IDS.COMMAND_REQUEST_DESCRIPTION_LIVEVIEW))
+        val action = BTCommandReq.Action("execute", "liveview")
+        val message = BTCommandReq(action)
+        sendCommand2(message)
     }
 
     private fun sendCommand(btMessage: BTMessages.BTMessage) {

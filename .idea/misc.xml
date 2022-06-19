@@ -6,6 +6,7 @@
         <entry key="app/src/main/res/drawable-v24/connection_dot.xml" value="0.1435" />
         <entry key="app/src/main/res/drawable/ic_add_black_24dp.xml" value="0.136" />
         <entry key="app/src/main/res/drawable/ic_apps_black_24dp.xml" value="0.136" />
+        <entry key="app/src/main/res/drawable/ic_baseline_settings_applications_24.xml" value="0.1235" />
         <entry key="app/src/main/res/drawable/ic_bluetooth_connected_black_24dp.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/ic_connect_g360_2016.xml" value="0.136" />
         <entry key="app/src/main/res/drawable/ic_connect_g360_2017.xml" value="0.136" />
@@ -21,6 +22,9 @@
         <entry key="app/src/main/res/layout/activity_hardware_info.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_home.xml" value="0.5" />
         <entry key="app/src/main/res/layout/activity_live_test.xml" value="0.18" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.12411347517730496" />
+        <entry key="app/src/main/res/layout/activity_remote.xml" value="0.5" />
+        <entry key="app/src/main/res/layout/activity_remote_control.xml" value="0.33" />
         <entry key="app/src/main/res/layout/activity_scan.xml" value="0.33" />
         <entry key="app/src/main/res/layout/activity_start.xml" value="0.15579710144927536" />
         <entry key="app/src/main/res/layout/activity_test.xml" value="0.25" />

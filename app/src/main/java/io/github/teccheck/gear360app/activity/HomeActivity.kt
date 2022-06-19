@@ -4,10 +4,8 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.res.ColorStateList
-import android.os.Build
+import android.os.*
 import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.os.IBinder
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -24,6 +22,7 @@ private const val TAG = "HomeActivity"
 
 class HomeActivity : AppCompatActivity() {
 
+    private val mainHandler = Handler(Looper.getMainLooper())
     private var gear360Service: Gear360Service? = null
 
     private val gearServiceConnection = object : ServiceConnection {
@@ -45,11 +44,11 @@ class HomeActivity : AppCompatActivity() {
         }
 
         override fun onDeviceConnected() {
-            setGearConnectivityIndicator(ConnectionState.CONNECTED)
+            mainHandler.post { setGearConnectivityIndicator(ConnectionState.CONNECTED) }
         }
 
         override fun onDeviceDisconnected() {
-            setGearConnectivityIndicator(ConnectionState.DISCONNECTED)
+            mainHandler.post { setGearConnectivityIndicator(ConnectionState.DISCONNECTED) }
         }
     }
 
@@ -88,6 +87,10 @@ class HomeActivity : AppCompatActivity() {
 
         findViewById<LinearLayout>(R.id.layout_camera).setOnClickListener {
             gear360Service?.messageSender?.sendLiveViewRequest()
+        }
+
+        findViewById<LinearLayout>(R.id.layout_remote_control).setOnClickListener {
+            startActivity(Intent(this, RemoteControlActivity::class.java))
         }
 
         findViewById<LinearLayout>(R.id.layout_hardware).setOnClickListener {
@@ -138,9 +141,19 @@ class HomeActivity : AppCompatActivity() {
 
         connectionGear.imageTintList = ColorStateList.valueOf(color)
 
-        if (connectionState == ConnectionState.DISCONNECTED)
-            connectButton.visibility = View.VISIBLE
-        else
-            connectButton.visibility = View.GONE
+        when (connectionState) {
+            ConnectionState.DISCONNECTED -> {
+                connectButton.visibility = View.VISIBLE
+                connectButton.isEnabled = true
+            }
+            ConnectionState.CONNECTING -> {
+                connectButton.visibility = View.VISIBLE
+                connectButton.isEnabled = false
+            }
+            ConnectionState.CONNECTED -> {
+                connectButton.visibility = View.GONE
+                connectButton.isEnabled = false
+            }
+        }
     }
 }
