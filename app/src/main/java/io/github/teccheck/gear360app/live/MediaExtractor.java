@@ -1,4 +1,4 @@
-package io.github.teccheck.gear360app;
+package io.github.teccheck.gear360app.live;
 
 import android.media.MediaFormat;
 import android.util.Log;
@@ -13,26 +13,31 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import static io.github.teccheck.gear360app.LiveTestActivity.*;
+// This extracts video, audio and other data (vrot) from the stream
+public class MediaExtractor {
 
-public class MediaExtractor{
+    private static final String TAG = "MediaExtractor";
 
     private static final int BUFFER_SIZE = 786432;
     private static final String TTT_FILE_TAG = "TTTS";
+
     private static final String VIDEO_CODEC_UNKNOWN = "video/unknown";
-    private static final String VIDEO_FRAME_STRAT_TAG = "00VD";
     private static final String AUDIO_CODEC_UNKNOWN = "audio/unknown";
+
+    private static final String VIDEO_FRAME_START_TAG = "00VD";
     private static final String AUDIO_FRAME_START_TAG = "00AU";
     private static final String VROT_FRAME_START_TAG = "00VR";
 
     Socket socket;
     BufferedOutputStream outputStream;
     BufferedInputStream inputStream;
+
     private MediaFormat videoFormat = new MediaFormat();
     private MediaFormat audioFormat = new MediaFormat();
-    private boolean isEndofStream;
+
+    private boolean isEndOfStream;
     private boolean shouldAdvanced = false;
-    private boolean isFirst = true;
+
     private int frameIndicator;
     private int headerSize = 0;
     private int videoBitRate = 1;
@@ -42,47 +47,50 @@ public class MediaExtractor{
     private int videoMaxBufferSize = -1;
     private int frameSize = 0;
     private int frameType = 2;
-    private int videoFrameCnt = 0;
+    private int videoFrameCount = 0;
     private int startMs;
     private int currentMs;
+
     private long presentationMs = 0;
     private long frameTimeStamp;
+
     private float fps = 0.0f;
     private float pitch = 0.0f;
     private float roll = 0.0f;
     private float yaw = 0.0f;
+
     private byte[] frameHeader = new byte[5];
     private byte[] headers = new byte[250];
     private byte[] buffer = new byte[BUFFER_SIZE];
+
     private VrotData vrotData;
 
-
     public void release() {
-        this.isEndofStream = true;
-        if (this.inputStream != null) {
+        isEndOfStream = true;
+        if (inputStream != null) {
             try {
-                this.inputStream.close();
+                inputStream.close();
             } catch (Throwable e) {
-                //
+                e.printStackTrace();
             }
         }
-        if (this.outputStream != null) {
+        if (outputStream != null) {
             try {
-                this.outputStream.close();
-            } catch (Throwable e2) {
-                //
+                outputStream.close();
+            } catch (Throwable e) {
+                e.printStackTrace();
             }
         }
-        if (this.socket != null) {
+        if (socket != null) {
             try {
-                this.socket.close();
-            } catch (Throwable e22) {
-                //
+                socket.close();
+            } catch (Throwable e) {
+                e.printStackTrace();
             }
         }
-        this.buffer = null;
-        this.headers = null;
-        this.frameHeader = null;
+        buffer = null;
+        headers = null;
+        frameHeader = null;
         System.gc();
     }
 
@@ -91,35 +99,32 @@ public class MediaExtractor{
     }
 
     public boolean isKeyFrame() {
-        if (this.frameType == 64 || this.frameType == 38) {
-            return true;
-        }
-        return false;
+        return frameType == 64 || frameType == 38;
     }
 
-    public boolean setDataSource(String stringurl) {
+    public boolean setDataSource(String url) {
         try {
-            URL url = new URL(stringurl);
+            URL urlObj = new URL(url);
 
-            String host = url.getHost();
-            String file = url.getFile();
-            int port = url.getPort();
+            String host = urlObj.getHost();
+            String file = urlObj.getFile();
+            int port = urlObj.getPort();
 
-            if(socket == null){
+            if (socket == null) {
                 socket = new Socket(Proxy.NO_PROXY);
                 socket.setReceiveBufferSize(BUFFER_SIZE);
             }
 
-            String s = "GET " + file + " HTTP/1.1\r\nUser-Agent: Android Linux\r\nHost: "+ host + ":" + port + "\r\nConnection: Keep-Alive\r\n\r\n";
+            String s = "GET " + file + " HTTP/1.1\r\nUser-Agent: Android Linux\r\nHost: " + host + ":" + port + "\r\nConnection: Keep-Alive\r\n\r\n";
 
-            Log.i(MainActivity.TAG, "\r\n" + s);
+            Log.i(TAG, "\r\n" + s);
             socket.setSoTimeout(0);
             socket.connect(new InetSocketAddress(host, port));
             outputStream = new BufferedOutputStream(socket.getOutputStream());
             outputStream.write(s.getBytes());
             outputStream.flush();
 
-            if(inputStream != null){
+            if (inputStream != null) {
                 inputStream.close();
                 inputStream = null;
             }
@@ -127,14 +132,13 @@ public class MediaExtractor{
             inputStream = new BufferedInputStream(socket.getInputStream(), BUFFER_SIZE);
 
             String h = readHeader();
-            Log.i(MainActivity.TAG, "readHeader(): " + h);
+            Log.i(TAG, "readHeader(): " + h);
 
             if (readMetaData() < 0) {
                 return false;
             }
 
             shouldAdvanced = true;
-            isFirst = true;
             startMs = 0;
             currentMs = 0;
             presentationMs = 0;
@@ -142,8 +146,8 @@ public class MediaExtractor{
             return true;
         } catch (Exception e) {
             e.printStackTrace();
-            isEndofStream = true;
-            if(inputStream != null) {
+            isEndOfStream = true;
+            if (inputStream != null) {
                 try {
                     inputStream.close();
                 } catch (IOException e1) {
@@ -152,32 +156,35 @@ public class MediaExtractor{
             }
         }
 
-        // // // // // // //
         return false;
-        // // // // // // //
     }
 
     public int dropFrame() throws IOException {
-        int size = this.frameSize - 5;
-        int cnt = 0;
-        while (size > 0) {
-            if (this.isEndofStream) {
-                return cnt;
+        int targetSize = frameSize - 5;
+        int totalReadCount = 0;
+
+        while (targetSize > 0) {
+            if (isEndOfStream) {
+                return totalReadCount;
             }
-            long c;
-            if (size < BUFFER_SIZE) {
-                c = (long) this.inputStream.read(this.buffer, 0, size);
+
+            int readCount;
+            if (targetSize < BUFFER_SIZE) {
+                readCount = inputStream.read(buffer, 0, targetSize);
             } else {
-                c = (long) this.inputStream.read(this.buffer);
+                readCount = inputStream.read(buffer);
             }
-            if (c < 0) {
-                this.isEndofStream = true;
+
+            if (readCount < 0) {
+                isEndOfStream = true;
                 return -1;
             }
-            size = (int) (((long) size) - c);
-            cnt = (int) (((long) cnt) + c);
+
+            targetSize -= readCount;
+            totalReadCount += readCount;
         }
-        return cnt;
+
+        return totalReadCount;
     }
 
     public int readFrameSampleData(ByteBuffer input) {
@@ -196,14 +203,14 @@ public class MediaExtractor{
             readStream();
             readFrameHead();
         }
-        return this.frameIndicator;
+        return frameIndicator;
     }
 
     public long getSampleTime() {
-        if (this.frameIndicator == 100) {
-            return (this.frameTimeStamp * 1000000) / ((long) this.videoTimeStampScale);
+        if (frameIndicator == 100) {
+            return (frameTimeStamp * 1000000) / ((long) videoTimeStampScale);
         }
-        return (this.frameTimeStamp * 1000000) / ((long) this.audioTimeStampScale);
+        return (frameTimeStamp * 1000000) / ((long) audioTimeStampScale);
     }
 
     public MediaFormat getVideoFormat() {
@@ -215,26 +222,26 @@ public class MediaExtractor{
     }
 
     public VrotData getVrotData() {
-        return this.vrotData;
+        return vrotData;
     }
 
     private String readHeader() {
-        String hd = "";
-        String temp = "";
+        StringBuilder hd = new StringBuilder();
+        StringBuilder temp = new StringBuilder();
         do {
             try {
-                char c = (char) this.inputStream.read();
-                hd = hd + c;
+                char c = (char) inputStream.read();
+                hd.append(c);
                 if (c == '\r' || c == '\n') {
-                    temp = temp + c;
+                    temp.append(c);
                 } else {
-                    temp = "";
+                    temp = new StringBuilder();
                 }
             } catch (Throwable e) {
                 e.printStackTrace();
             }
-        } while (!temp.contentEquals("\r\n\r\n"));
-        return hd;
+        } while (!temp.toString().contentEquals("\r\n\r\n"));
+        return hd.toString();
     }
 
     private String readByteToString() {
@@ -244,7 +251,7 @@ public class MediaExtractor{
             while (loop < 4) {
                 int btemp = inputStream.read();
                 if (btemp < 0) {
-                    isEndofStream = true;
+                    isEndOfStream = true;
                     frameIndicator = -100;
                     break;
                 }
@@ -256,12 +263,12 @@ public class MediaExtractor{
             }
         } catch (Exception e) {
             e.printStackTrace();
-            isEndofStream = true;
+            isEndOfStream = true;
         }
         return null;
     }
 
-    private int readMetaData() /*throws IOException*/ {
+    private int readMetaData() {
         int width = 0;
         int height = 0;
         int videoCodecType = 0;
@@ -269,77 +276,91 @@ public class MediaExtractor{
         int audioCodecType = -1;
         int sampleRate = 0;
         int type = 0;
+
         boolean stopRead = false;
 
         do {
             String header = readByteToString();
-            Log.d(MainActivity.TAG, "Header: " + header);
-            if(header == null){
+            Log.d(TAG, "Header: " + header);
+            if (header == null) {
                 headerSize = -1;
-            }else {
+            } else {
                 int size;
                 String read;
                 int version;
                 String caseName;
 
-                switch (header){
+                switch (header) {
                     case TTT_FILE_TAG:
-                        Log.d(MainActivity.TAG, "case TTT");
+                        Log.d(TAG, "case TTT");
                         size = readByteToInt();
                         type = readByteToInt();
                         headerSize += 12;
 
                     case "VID0":
-                        Log.d(MainActivity.TAG, "case VID0");
+                        Log.d(TAG, "case VID0");
+
                         caseName = readByteToString();
                         size = readByteToInt();
+
                         int transblocknumber = readByteToInt();
                         int transblocktype = readByteToInt();
                         int encodeWidth = readByteToInt();
                         int encodeHeight = readByteToInt();
+
                         videoCodecType = readByteToInt();
-                        this.videoBitRate = readByteToInt();
-                        this.videoGOP = readByteToInt();
+                        videoBitRate = readByteToInt();
+                        videoGOP = readByteToInt();
+
                         int goptype = readByteToInt();
-                        this.videoTimeStampScale = readByteToInt();
+
+                        videoTimeStampScale = readByteToInt();
+
                         read = readByteToString();
-                        Log.d(MainActivity.TAG, "Read: " + read);
+                        Log.d(TAG, "Read: " + read);
+
                         if (read == null || !read.contains("VD00")) {
-                            this.headerSize = -1;
+                            headerSize = -1;
                             stopRead = true;
                         } else {
                             version = readByteToInt();
-                            this.fps = ((float) readByteToInt()) / ((float) readByteToInt());
+                            fps = ((float) readByteToInt()) / ((float) readByteToInt());
+
                             float horiAngle = ((float) readByteToInt()) / ((float) readByteToInt());
                             float vertiAngle = ((float) readByteToInt()) / ((float) readByteToInt());
                             float lensInfo = ((float) readByteToInt()) / ((float) readByteToInt());
+
                             width = readByteToInt();
                             height = readByteToInt();
+
                             int posX = readByteToInt();
                             readByteToInt();
                             headerSize += size + 4;
                         }
+                        
                     case "AUD0":
-                        Log.d(MainActivity.TAG, "case AUD0");
+                        Log.d(TAG, "case AUD0");
                         caseName = readByteToString();
                         size = readByteToInt();
                         channel = readByteToInt();
-                        int nAudioInfo = readByteToInt();
-                        this.audioTimeStampScale = readByteToInt();
-                        read = readByteToString();
-                        Log.d(MainActivity.TAG, "Read: " + read);
 
-                        Log.d(MainActivity.TAG, "case AUD0 if statement incomming");
+                        int nAudioInfo = readByteToInt();
+                        audioTimeStampScale = readByteToInt();
+
+                        read = readByteToString();
+                        Log.d(TAG, "Read: " + read);
+
+                        Log.d(TAG, "case AUD0 if statement incomming");
                         if (read == null || !read.contains("AU00")) {
-                            Log.d(MainActivity.TAG, "into the if");
-                            this.headerSize = -1;
+                            Log.d(TAG, "into the if");
+                            headerSize = -1;
                             stopRead = true;
                             //continue;
                         } else {
-
-                            Log.i(MainActivity.TAG, "into the else");
+                            Log.i(TAG, "into the else");
                             version = readByteToInt();
                             audioCodecType = readByteToInt();
+
                             int nAudioBps = readByteToInt();
                             int nAChannel = readByteToInt();
                             int horiAngleNumCh1 = readByteToInt();
@@ -352,60 +373,68 @@ public class MediaExtractor{
                             int virtAngleNumCh2 = readByteToInt();
                             float virtAngleCh2 = ((float) virtAngleNumCh1) / ((float) readByteToInt());
                             int sampleRateCh2 = readByteToInt();
+
                             sampleRate = sampleRateCh1;
-                            this.headerSize += size + 4;
+                            headerSize += size + 4;
                             //continue;
                         }
+                        
                     case "VRO0":
-                        Log.d(MainActivity.TAG, "case VRO0");
-                        //caseName = readByteToString();
+                        Log.d(TAG, "case VRO0");
+                        caseName = readByteToString();
                         size = readByteToInt();
+
                         int nVRChannel = readByteToInt();
+
                         read = readByteToString();
-                        Log.d(MainActivity.TAG, "Read: " + read);
+                        Log.d(TAG, "Read: " + read);
 
                         if (read == null || !read.contains("VR00")) {
-                            this.headerSize = -1;
+                            headerSize = -1;
                             stopRead = true;
                             //continue;
                         } else {
                             version = readByteToInt();
                             readByteToInt();
-                            this.headerSize += size + 4;
+                            headerSize += size + 4;
                             //continue;
                         }
+                        
                     case "LIST":
-                        Log.d(MainActivity.TAG, "case LIST");
-                        this.headerSize += 8;
+                        Log.d(TAG, "case LIST");
+                        headerSize += 8;
+                        
                     case "movi":
-                        Log.d(MainActivity.TAG, "case movi");
-                        this.headerSize += 4;
+                        Log.d(TAG, "case movi");
+                        headerSize += 4;
                         stopRead = true;
                         break;
+                        
                     default:
-                        Log.d(MainActivity.TAG, "default");
-                        this.headerSize = -1;
+                        Log.d(TAG, "default");
+                        headerSize = -1;
                         stopRead = true;
                 }
 
-                Log.d(MainActivity.TAG, "Widht: " + width + ", Height: " + height + ", VideoCodecType: " + videoCodecType + ", AudioCodecType: " + audioCodecType);
-                Log.d(MainActivity.TAG, "Channel: " + channel + ", Sample Rate: " + sampleRate + ", Type: " + type + ", HeaderSize: " + headerSize);
+                Log.d(TAG, "Widht: " + width + ", Height: " + height + ", VideoCodecType: " + videoCodecType + ", AudioCodecType: " + audioCodecType);
+                Log.d(TAG, "Channel: " + channel + ", Sample Rate: " + sampleRate + ", Type: " + type + ", HeaderSize: " + headerSize);
 
                 if ((type & 1) != 0) {
-                    this.videoFormat.setInteger("width", width);
-                    this.videoFormat.setInteger("height", height);
-                    Log.d(MainActivity.TAG, "videoCodecType: " + videoCodecType);
+                    // Has video data
+                    videoFormat.setInteger("width", width);
+                    videoFormat.setInteger("height", height);
+                    Log.d(TAG, "videoCodecType: " + videoCodecType);
                     switch (videoCodecType) {
                         case 0:
-                            this.videoFormat.setString("mime", "video/raw");
+                            videoFormat.setString("mime", "video/raw");
                             break;
                         case 1:
-                            this.videoFormat.setString("mime", "video/hevc");
+                            videoFormat.setString("mime", "video/hevc");
                             break;
                         case 2:
                             break;
                         default:
-                            this.videoFormat.setString("mime", VIDEO_CODEC_UNKNOWN);
+                            videoFormat.setString("mime", VIDEO_CODEC_UNKNOWN);
                             break;
                     }
                     videoFormat.setInteger("bitrate", videoBitRate);
@@ -419,8 +448,9 @@ public class MediaExtractor{
                 }
 
                 if ((type & 2) != 0) {
+                    // Has audio data
                     audioFormat.setInteger("channel-count", channel);
-                    Log.d(MainActivity.TAG, "audioCodecType: " + audioCodecType);
+                    Log.d(TAG, "audioCodecType: " + audioCodecType);
                     switch (audioCodecType) {
                         case 0:
                             audioFormat.setString("mime", "audio/raw");
@@ -438,28 +468,28 @@ public class MediaExtractor{
                 } else {
                     audioFormat = null;
                 }
-                return this.headerSize;
+                return headerSize;
             }
 
-        }while (!stopRead);
+        } while (!stopRead);
 
         if ((type & 1) == 0) {
-            this.videoFormat = null;
+            videoFormat = null;
         } else {
-            this.videoFormat.setInteger("width", width);
-            this.videoFormat.setInteger("height", height);
-            Log.d(MainActivity.TAG, "videoCodecType: " + videoCodecType);
+            videoFormat.setInteger("width", width);
+            videoFormat.setInteger("height", height);
+            Log.d(TAG, "videoCodecType: " + videoCodecType);
             switch (videoCodecType) {
                 case 0:
-                    this.videoFormat.setString("mime", "video/raw");
+                    videoFormat.setString("mime", "video/raw");
                     break;
                 case 1:
-                    this.videoFormat.setString("mime", "video/hevc");
+                    videoFormat.setString("mime", "video/hevc");
                     break;
                 case 2:
                     break;
                 default:
-                    this.videoFormat.setString("mime", VIDEO_CODEC_UNKNOWN);
+                    videoFormat.setString("mime", VIDEO_CODEC_UNKNOWN);
                     break;
             }
             videoFormat.setInteger("bitrate", videoBitRate);
@@ -469,11 +499,12 @@ public class MediaExtractor{
             videoFormat.setInteger("max-input-size", videoMaxBufferSize);
             videoFormat.setLong("durationUs", 0);
         }
+
         if ((type & 2) == 0) {
-            this.audioFormat = null;
+            audioFormat = null;
         } else {
             audioFormat.setInteger("channel-count", channel);
-            Log.d(MainActivity.TAG, "audioCodecType: " + audioCodecType);
+            Log.d(TAG, "audioCodecType: " + audioCodecType);
             switch (audioCodecType) {
                 case 0:
                     audioFormat.setString("mime", "audio/raw");
@@ -489,9 +520,11 @@ public class MediaExtractor{
             audioFormat.setInteger("sample-rate", sampleRate);
             audioFormat.setLong("durationUs", 0);
         }
-        Log.d(MainActivity.TAG, "videoFormat: " + videoFormat);
-        Log.d(MainActivity.TAG, "audioFormat: " + audioFormat);
-        return this.headerSize;
+        
+        Log.d(TAG, "videoFormat: " + videoFormat);
+        Log.d(TAG, "audioFormat: " + audioFormat);
+        
+        return headerSize;
     }
 
     private int readByteToInt() {
@@ -501,7 +534,7 @@ public class MediaExtractor{
             try {
                 int btemp = inputStream.read();
                 if (btemp < 0) {
-                    isEndofStream = true;
+                    isEndOfStream = true;
                     frameIndicator = -100;
                     break;
                 }
@@ -509,7 +542,7 @@ public class MediaExtractor{
                 loop++;
             } catch (Exception e) {
                 e.printStackTrace();
-                this.isEndofStream = true;
+                isEndOfStream = true;
             }
         }
         if (loop == 4) {
@@ -520,30 +553,29 @@ public class MediaExtractor{
 
     private synchronized void readFrameHead() {
         try {
-            this.frameSize = readByteToInt();
-            long timestamp = parselongfrombyte(new byte[]{(byte) this.inputStream.read(), (byte) this.inputStream.read(), (byte) this.inputStream.read(), (byte) this.inputStream.read(), (byte) this.inputStream.read(), (byte) this.inputStream.read(), (byte) this.inputStream.read(), (byte) this.inputStream.read()});
-            this.frameTimeStamp = timestamp;
-            this.presentationMs = (1000 * timestamp) / ((long) this.videoTimeStampScale);
-            if (this.presentationMs == 0) {
-                this.isFirst = true;
-            }
-            if (this.frameIndicator == 300) {
-                this.yaw = ((float) readByteToInt()) / ((float) readByteToInt());
-                this.pitch = ((float) readByteToInt()) / ((float) readByteToInt());
-                this.roll = ((float) readByteToInt()) / ((float) readByteToInt());
-                this.vrotData = new VrotData((1000000 * timestamp) / ((long) this.videoTimeStampScale), this.yaw, this.pitch, this.roll);
+            frameSize = readByteToInt();
+            long timestamp = parseLongFromByte(new byte[]{(byte) inputStream.read(), (byte) inputStream.read(), (byte) inputStream.read(), (byte) inputStream.read(), (byte) inputStream.read(), (byte) inputStream.read(), (byte) inputStream.read(), (byte) inputStream.read()});
+            frameTimeStamp = timestamp;
+            presentationMs = (1000 * timestamp) / ((long) videoTimeStampScale);
+
+            if (frameIndicator == 300) {
+                yaw = ((float) readByteToInt()) / ((float) readByteToInt());
+                pitch = ((float) readByteToInt()) / ((float) readByteToInt());
+                roll = ((float) readByteToInt()) / ((float) readByteToInt());
+                vrotData = new VrotData((1000000 * timestamp) / ((long) videoTimeStampScale), yaw, pitch, roll);
             } else {
                 for (int k = 0; k < 5; k++) {
-                    int check = this.inputStream.read();
+                    int check = inputStream.read();
                     if (check == -1) {
-                        this.isEndofStream = true;
-                        this.frameIndicator = -100;
+                        isEndOfStream = true;
+                        frameIndicator = -100;
                     }
-                    this.frameHeader[k] = (byte) check;
+                    frameHeader[k] = (byte) check;
                 }
-                this.frameType = this.frameHeader[4];
+                frameType = frameHeader[4];
             }
         } catch (Throwable e) {
+            e.printStackTrace();
         }
     }
 
@@ -552,28 +584,28 @@ public class MediaExtractor{
         while (true) {
             try {
                 byte[] temp = new byte[4];
-                int btemp = this.inputStream.read();
+                int btemp = inputStream.read();
                 if (btemp < 0) {
-                    this.isEndofStream = true;
-                    this.frameIndicator = -100;
+                    isEndOfStream = true;
+                    frameIndicator = -100;
                 }
                 temp[0] = (byte) btemp;
-                btemp = this.inputStream.read();
+                btemp = inputStream.read();
                 if (btemp < 0) {
-                    this.isEndofStream = true;
-                    this.frameIndicator = -100;
+                    isEndOfStream = true;
+                    frameIndicator = -100;
                 }
                 temp[1] = (byte) btemp;
-                btemp = this.inputStream.read();
+                btemp = inputStream.read();
                 if (btemp < 0) {
-                    this.isEndofStream = true;
-                    this.frameIndicator = -100;
+                    isEndOfStream = true;
+                    frameIndicator = -100;
                 }
                 temp[2] = (byte) btemp;
-                btemp = this.inputStream.read();
+                btemp = inputStream.read();
                 if (btemp < 0) {
-                    this.isEndofStream = true;
-                    this.frameIndicator = -100;
+                    isEndOfStream = true;
+                    frameIndicator = -100;
                 }
                 temp[3] = (byte) btemp;
                 frameTag = new String(temp);
@@ -582,61 +614,72 @@ public class MediaExtractor{
                 }
                 long skip = 0;
                 try {
-                    skip = this.inputStream.skip((long) (this.headerSize - 4));
+                    skip = inputStream.skip((long) (headerSize - 4));
                 } catch (Throwable e) {
                     e.printStackTrace();
                 }
             } catch (Throwable e2) {
-                this.isEndofStream = true;
+                isEndOfStream = true;
             }
         }
-        if (frameTag.contains(VIDEO_FRAME_STRAT_TAG)) {
-            this.frameIndicator = 100;
+
+        if (frameTag.contains(VIDEO_FRAME_START_TAG)) {
+            frameIndicator = 100;
         } else if (frameTag.contains(AUDIO_FRAME_START_TAG)) {
-            this.frameIndicator = 200;
+            frameIndicator = 200;
         } else if (frameTag.contains(VROT_FRAME_START_TAG)) {
-            this.frameIndicator = 300;
+            frameIndicator = 300;
         } else {
-            this.isEndofStream = true;
-            this.frameIndicator = -100;
+            isEndOfStream = true;
+            frameIndicator = -100;
         }
-        this.shouldAdvanced = false;
-        return this.frameIndicator;
+
+        shouldAdvanced = false;
+        return frameIndicator;
     }
 
     private synchronized int readFrame(ByteBuffer input) throws IOException {
-        int i;
-        if (this.isEndofStream) {
-            i = -100;
+        int readCount;
+
+        if (isEndOfStream) {
+            readCount = -100;
+
         } else {
-            input.put(this.frameHeader);
-            int cnt = 5;
-            int size = this.frameSize - 5;
+            input.put(frameHeader);
+
+            int count = 5;
+            int size = frameSize - 5;
+
             while (size > 0) {
-                if (this.isEndofStream) {
-                    cnt = -100;
+
+                if (isEndOfStream) {
+                    count = -100;
                     break;
                 }
+
                 if (size < BUFFER_SIZE) {
-                    i = this.inputStream.read(this.buffer, 0, size);
+                    readCount = inputStream.read(buffer, 0, size);
                 } else {
-                    i = this.inputStream.read(this.buffer);
+                    readCount = inputStream.read(buffer);
                 }
-                if (i <= 0) {
-                    this.isEndofStream = true;
+
+                if (readCount <= 0) {
+                    isEndOfStream = true;
                     break;
                 }
-                input.put(this.buffer, 0, i);
-                cnt += i;
-                size -= i;
+
+                input.put(buffer, 0, readCount);
+                count += readCount;
+                size -= readCount;
             }
-            this.videoFrameCnt++;
-            i = cnt;
+
+            videoFrameCount++;
+            readCount = count;
         }
-        return i;
+        return readCount;
     }
 
-    private long parselongfrombyte(byte[] arr) {
+    private long parseLongFromByte(byte[] arr) {
         return ByteBuffer.wrap(arr).order(ByteOrder.BIG_ENDIAN).getLong();
     }
 }

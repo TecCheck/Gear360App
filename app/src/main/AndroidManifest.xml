@@ -78,7 +78,7 @@
             android:name="AccessoryServicesLocation"
             android:value="/res/xml/accessoryservices.xml" />
 
-        <activity android:name=".LiveTestActivity" />
+        <activity android:name=".live.LiveTestActivity" />
     </application>
 
 </manifest>

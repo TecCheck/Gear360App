@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import io.github.teccheck.gear360app.LiveTestActivity;
+import io.github.teccheck.gear360app.live.LiveTestActivity;
 import io.github.teccheck.gear360app.MainActivity;
 import io.github.teccheck.gear360app.R;
 import io.github.teccheck.gear360app.Utils;
