@@ -11,7 +11,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
-import io.github.teccheck.gear360app.LiveTestActivity
 import io.github.teccheck.gear360app.R
 import io.github.teccheck.gear360app.bluetooth2.Gear360Service
 import io.github.teccheck.gear360app.utils.ConnectionState
@@ -19,6 +18,7 @@ import io.github.teccheck.gear360app.utils.SettingsHelper
 import io.github.teccheck.gear360app.widget.ConnectionDots
 
 private const val TAG = "HomeActivity"
+const val EXTRA_MAC_ADDRESS = "mac_address"
 
 class HomeActivity : AppCompatActivity() {
 
@@ -98,7 +98,7 @@ class HomeActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btn_test).setOnClickListener {
-            startActivity(Intent(this, LiveTestActivity::class.java))
+            startActivity(Intent(this, TestActivity::class.java))
         }
     }
 
