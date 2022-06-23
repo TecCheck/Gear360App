@@ -6,9 +6,10 @@
     android:layout_height="match_parent"
     tools:context=".activity.ExoplayerActivity">
 
-    <com.google.android.exoplayer2.ui.StyledPlayerView
+    <com.google.android.exoplayer2.ui.PlayerView
         android:id="@+id/player_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        app:surface_type="spherical_gl_surface_view" />
 
 </FrameLayout>

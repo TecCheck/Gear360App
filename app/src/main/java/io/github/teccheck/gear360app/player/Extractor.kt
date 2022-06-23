@@ -6,52 +6,46 @@ import com.google.android.exoplayer2.Format
 import com.google.android.exoplayer2.extractor.*
 import com.google.android.exoplayer2.extractor.Extractor
 import com.google.android.exoplayer2.util.MimeTypes
+import com.google.android.exoplayer2.util.ParsableByteArray
 import java.io.IOException
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 
 private const val TAG = "Extractor"
 
-private const val TAG_TTTS = "TTTS"
-private const val TAG_VID_0 = "VID0"
-private const val TAG_VD_00 = "VD00"
-
-private const val TAG_AUD_0 = "AUD0"
-private const val TAG_AU_00 = "AU00"
-
-private const val TAG_VR_00 = "VR00"
-
-private const val TAG_LIST = "LIST"
-
-private const val TAG_MOVI = "movi"
-
-private const val TAG_VIDEO_FRAME_START = "00VD"
-private const val TAG_AUDIO_FRAME_START = "00AU"
-private const val TAG_VROT_FRAME_START = "00VR"
+// Tags are 4 byte long string. Here they are ints for better performance
+private const val TAG_TTTS = 0x54545453
+private const val TAG_VID0 = 0x56494430
+private const val TAG_VD00 = 0x56443030
+private const val TAG_AUD0 = 0x41554430
+private const val TAG_AU00 = 0x41553030
+private const val TAG_VR00 = 0x56523030
+private const val TAG_LIST = 0x4C495354
+private const val TAG_MOVI = 0x6D6F7669
+private const val TAG_00VD = 0x30305644
+private const val TAG_00AU = 0x30304155
+private const val TAG_00VR = 0x30305652
 
 private const val TRACK_ID_VIDEO = 0
 
 class Extractor : Extractor {
 
-    private var extractorOutput: ExtractorOutput? = null
+    private lateinit var extractorOutput: ExtractorOutput
+    private lateinit var videoTrack: TrackOutput
 
     private var currentState = ExtractorState.READ_MAIN_HEADER
-    private var currentChunkType = ChunkType.UNKNOWN
-    private var bytesRemainingInCurrentChunk = 0
+    private var buffer = ParsableByteArray(12)
 
-    private val headerSize = 0
-    private var videoBitRate = 1
-    private var videoGOP = 1
+    private var currentChunkType = ChunkType.UNKNOWN
+    private var currentChunkTag: Int = 0
+    private var bytesRemainingInCurrentChunk = 0
+    private var currentChunkSize = 0
+    private var currentChunkTimeStamp: Long = 0
+    private var currentFrameType = 2
+
+    private val mainHeaderSize = 0
     private var videoTimeStampScale = 1
     private var audioTimeStampScale = 0
-    private var frameSize = 0
-    private var frameType = 2
 
-    private var frameTimeStamp: Long = 0
-
-    private var fps = 0.0f
-
-    private val frameHeader = ByteArray(5)
+    //private var timer = Timer()
 
     override fun init(output: ExtractorOutput) {
         extractorOutput = output
@@ -67,33 +61,34 @@ class Extractor : Extractor {
     override fun read(input: ExtractorInput, seekPosition: PositionHolder): Int {
         when (currentState) {
             ExtractorState.READ_MAIN_HEADER -> {
+                //timer.start()
                 readMainHeader(input)
 
                 // This is important. Don't leave this call out
-                extractorOutput?.seekMap(SeekMap.Unseekable(C.TIME_UNSET))
+                extractorOutput.seekMap(SeekMap.Unseekable(C.TIME_UNSET))
 
-                extractorOutput?.endTracks()
+                extractorOutput.endTracks()
                 currentState = ExtractorState.READ_FRAME_TAG
-                return Extractor.RESULT_CONTINUE
+                //Log.d(TAG, "Reading main header took ${timer.stop()}ms")
             }
 
             ExtractorState.READ_FRAME_TAG -> {
+                //timer.start()
                 readFrameTag(input)
                 currentState = ExtractorState.READ_FRAME_HEADER
-                return Extractor.RESULT_CONTINUE
             }
 
             ExtractorState.READ_FRAME_HEADER -> {
                 readFrameHead(input)
                 currentState = ExtractorState.READ_FRAME_DATA
-                return Extractor.RESULT_CONTINUE
             }
             ExtractorState.READ_FRAME_DATA -> {
-                val done = readFrameData(input)
-                if (done) currentState = ExtractorState.READ_FRAME_TAG
+                if (readFrameData(input)) {
+                    currentState = ExtractorState.READ_FRAME_TAG
+                    //Log.d(TAG, "Chunk took ${timer.stop()}ms; Average: ${timer.getAverage()}ms")
+                }
             }
         }
-
         return Extractor.RESULT_CONTINUE
     }
 
@@ -106,9 +101,11 @@ class Extractor : Extractor {
     }
 
     private fun readMainHeader(input: ExtractorInput) {
+        Log.d(TAG, "readMainHeader")
 
         var width = 0
         var height = 0
+        var frameRate = 0.0f
 
         var videoCodecType = 0
         var audioCodecType = -1
@@ -121,84 +118,127 @@ class Extractor : Extractor {
         var doRead = true
 
         do {
-            val tag = readString(input, 4)
-            Log.d(TAG, "Main header part $tag")
+            input.readFully(buffer.data, 0, 4)
+            buffer.position = 0
+            val tag = buffer.readInt()
+
+            Log.d(TAG, "Main header part ${tag.toString(16)}")
 
             var size: Int
-            var subTag: String
+            var subTag: Int
 
             when (tag) {
                 TAG_TTTS -> {
-                    size = readInt(input)
-                    type = readInt(input)
+                    Log.d(TAG, "TTTS")
+
+                    input.readFully(buffer.data, 0, 8)
+                    buffer.position = 0
+                    size = buffer.readInt()
+                    type = buffer.readInt()
                     headerSize += 12
                 }
 
-                TAG_VID_0 -> {
-                    size = readInt(input)
+                TAG_VID0 -> {
+                    Log.d(TAG, "VID0")
+
+                    input.readFully(buffer.data, 0, 4)
+                    buffer.position = 0
+                    size = buffer.readInt()
 
                     input.skip(16)
 
-                    videoCodecType = readInt(input)
-                    videoBitRate = readInt(input)
-                    videoGOP = readInt(input)
+                    input.readFully(buffer.data, 0, 4)
+                    buffer.position = 0
+                    videoCodecType = buffer.readInt()
 
-                    input.skip(4)
+                    input.skip(12)
 
-                    videoTimeStampScale = readInt(input)
+                    input.readFully(buffer.data, 0, 8)
+                    buffer.position = 0
+                    videoTimeStampScale = buffer.readInt()
+                    subTag = buffer.readInt()
 
-                    subTag = readString(input, 4)
-                    Log.d(TAG, "Video sub tag: $subTag")
+                    Log.d(TAG, "Subtag: ${subTag.toString(16)}")
 
-                    if (!subTag.contains(TAG_VD_00)) {
+                    if (subTag != TAG_VD00) {
                         headerSize = -1
                         doRead = false
                     } else {
                         input.skip(4)
-                        fps = readInt(input).toFloat() / readInt(input).toFloat()
+
+                        input.readFully(buffer.data, 0, 8)
+                        buffer.position = 0
+                        frameRate = buffer.readInt().toFloat() /
+                                buffer.readInt().toFloat()
 
                         input.skip(24)
-                        width = readInt(input)
-                        height = readInt(input)
+
+                        input.readFully(buffer.data, 0, 8)
+                        buffer.position = 0
+                        width = buffer.readInt()
+                        height = buffer.readInt()
+
                         input.skip(8)
 
                         headerSize += size + 4
                     }
                 }
 
-                TAG_AUD_0 -> {
-                    size = readInt(input)
-                    channel = readInt(input)
+                TAG_AUD0 -> {
+                    Log.d(TAG, "AUD0")
 
-                    val nAudioInfo = readInt(input)
-                    audioTimeStampScale = readInt(input)
+                    input.readFully(buffer.data, 0, 8)
+                    buffer.position = 0
+                    size = buffer.readInt()
+                    channel = buffer.readInt()
 
-                    subTag = readString(input, 4)
-                    Log.d(TAG, "Audio sub tag: $subTag")
+                    input.skip(4)
 
-                    if (!subTag.contains(TAG_AU_00)) {
+                    input.readFully(buffer.data, 0, 8)
+                    buffer.position = 0
+                    audioTimeStampScale = buffer.readInt()
+                    subTag = buffer.readInt()
+
+                    Log.d(TAG, "Subtag: ${subTag.toString(16)}")
+
+                    if (subTag != TAG_AU00) {
                         headerSize = -1
                         doRead = false
                     } else {
                         input.skip(4)
-                        audioCodecType = readInt(input)
+
+                        input.readFully(buffer.data, 0, 4)
+                        buffer.position = 0
+                        audioCodecType = buffer.readInt()
+
                         input.skip(32)
 
-                        sampleRate = readInt(input)
+                        input.readFully(buffer.data, 0, 4)
+                        buffer.position = 0
+                        sampleRate = buffer.readInt()
+
                         input.skip(20)
 
                         headerSize += size + 4
                     }
                 }
 
-                TAG_VR_00 -> {
-                    size = readInt(input)
+                TAG_VR00 -> {
+                    Log.d(TAG, "VR00")
+
+                    input.readFully(buffer.data, 0, 4)
+                    buffer.position = 0
+                    size = buffer.readInt()
+
                     input.skip(4)
 
-                    subTag = readString(input, 4)
-                    Log.d(TAG, "SubTag: $subTag")
+                    input.readFully(buffer.data, 0, 4)
+                    buffer.position = 0
+                    subTag = buffer.readInt()
 
-                    if (!subTag.contains(TAG_VR_00)) {
+                    Log.d(TAG, "Subtag: ${subTag.toString(16)}")
+
+                    if (subTag != TAG_VR00) {
                         headerSize = -1
                         doRead = false
                     } else {
@@ -208,13 +248,21 @@ class Extractor : Extractor {
                 }
 
                 TAG_LIST -> {
+                    Log.d(TAG, "LIST")
+
                     input.skip(4)
                     headerSize += 8
                 }
 
                 TAG_MOVI -> {
+                    Log.d(TAG, "MOVI")
+
                     headerSize += 4
                     doRead = false
+                }
+
+                else -> {
+                    Log.d(TAG, "Invalid Tag: ${tag.toString(16)}")
                 }
             }
         } while (doRead)
@@ -227,18 +275,18 @@ class Extractor : Extractor {
             }
 
             Log.d(TAG, "Video mime type: $mimeType")
-            Log.d(TAG, "FPS: $fps")
+            Log.d(TAG, "Frame rate: $frameRate")
 
             val format = Format.Builder()
                 .setWidth(width)
                 .setHeight(height)
                 .setSampleMimeType(mimeType)
                 .setId(TRACK_ID_VIDEO)
-                .setFrameRate(fps)
+                .setFrameRate(frameRate)
                 .setMaxInputSize(1000000)
 
-            val track = extractorOutput?.track(TRACK_ID_VIDEO, C.TRACK_TYPE_VIDEO)
-            track?.format(format.build())
+            videoTrack = extractorOutput.track(TRACK_ID_VIDEO, C.TRACK_TYPE_VIDEO)
+            videoTrack.format(format.build())
         }
 
         /*
@@ -259,45 +307,47 @@ class Extractor : Extractor {
     }
 
     private fun readFrameTag(input: ExtractorInput) {
-        var frameTag: String
-
         while (true) {
-            frameTag = readString(input, 4)
+            input.readFully(buffer.data, 0, 4)
+            buffer.position = 0
+            currentChunkTag = buffer.readInt()
 
-            if (!frameTag.contains(TAG_TTTS)) {
-                currentChunkType = when (frameTag) {
-                    TAG_VIDEO_FRAME_START -> ChunkType.VIDEO
-                    TAG_AUDIO_FRAME_START -> ChunkType.AUDIO
-                    TAG_VROT_FRAME_START -> ChunkType.VROT
+            if (currentChunkTag == TAG_TTTS) {
+                input.skip(mainHeaderSize - 4)
+            } else {
+                currentChunkType = when (currentChunkTag) {
+                    TAG_00VD -> ChunkType.VIDEO
+                    TAG_00AU -> ChunkType.AUDIO
+                    TAG_00VR -> ChunkType.VROT
                     else -> ChunkType.UNKNOWN
                 }
                 return
             }
-
-            input.skip(headerSize - 4)
         }
     }
 
     private fun readFrameHead(input: ExtractorInput) {
-        frameSize = readInt(input)
-        frameTimeStamp = readLong(input)
-        bytesRemainingInCurrentChunk = frameSize
+        input.readFully(buffer.data, 0, 12)
+        buffer.position = 0
+        currentChunkSize = buffer.readInt()
+        currentChunkTimeStamp = buffer.readLong()
+        bytesRemainingInCurrentChunk = currentChunkSize
 
         if (currentChunkType == ChunkType.VROT) {
-            Log.w(TAG, "ChunkType is VROT")
             input.skip(24)
         } else {
-            input.peekFully(frameHeader, 0, frameHeader.size)
-            frameType = frameHeader[4].toInt()
+            input.peekFully(buffer.data, 0, 5)
             input.resetPeekPosition()
+            buffer.position = 4
+            currentFrameType = buffer.readUnsignedByte()
         }
     }
 
     private fun readFrameData(input: ExtractorInput): Boolean {
         when (currentChunkType) {
             ChunkType.VIDEO -> return readFrameSampleData(input)
-            ChunkType.AUDIO -> {}
-            ChunkType.VROT -> {}
+            ChunkType.AUDIO -> Log.w(TAG, "ChunkType is AUDIO")
+            ChunkType.VROT -> Log.w(TAG, "ChunkType is VROT")
             ChunkType.UNKNOWN -> Log.w(TAG, "Invalid ChunkType")
         }
 
@@ -305,17 +355,16 @@ class Extractor : Extractor {
     }
 
     private fun readFrameSampleData(input: ExtractorInput): Boolean {
-        val track = extractorOutput?.track(TRACK_ID_VIDEO, C.TRACK_TYPE_VIDEO)
-
-        val readCount = track?.sampleData(input, bytesRemainingInCurrentChunk, false)
-        if (readCount != null) bytesRemainingInCurrentChunk -= readCount
+        bytesRemainingInCurrentChunk -= videoTrack.sampleData(
+            input,
+            bytesRemainingInCurrentChunk,
+            false
+        )
 
         val done = bytesRemainingInCurrentChunk == 0
         if (done) {
-            val sampleTime = getSampleTime()
-
             val flags = if (isKeyFrame()) C.BUFFER_FLAG_KEY_FRAME else 0
-            track?.sampleMetadata(sampleTime, flags, frameSize - 5, 0, null)
+            videoTrack.sampleMetadata(getSampleTime(), flags, currentChunkSize - 5, 0, null)
         }
 
         return done
@@ -323,31 +372,11 @@ class Extractor : Extractor {
 
     private fun getSampleTime(): Long {
         return if (currentChunkType == ChunkType.VIDEO) {
-            frameTimeStamp * 1000000 / videoTimeStampScale.toLong()
-        } else frameTimeStamp * 1000000 / audioTimeStampScale.toLong()
+            currentChunkTimeStamp * 1000000 / videoTimeStampScale.toLong()
+        } else currentChunkTimeStamp * 1000000 / audioTimeStampScale.toLong()
     }
 
     private fun isKeyFrame(): Boolean {
-        return frameType == 64 || frameType == 38
-    }
-
-    private fun readString(input: ExtractorInput, len: Int): String {
-        val buffer = ByteArray(len)
-        input.readFully(buffer, 0, len)
-        return String(buffer)
-    }
-
-    private fun readInt(input: ExtractorInput): Int {
-        val buffer = ByteArray(4)
-        input.readFully(buffer, 0, buffer.size)
-
-        return ByteBuffer.wrap(buffer).order(ByteOrder.BIG_ENDIAN).int
-    }
-
-    private fun readLong(input: ExtractorInput): Long {
-        val buffer = ByteArray(8)
-        input.readFully(buffer, 0, buffer.size)
-
-        return ByteBuffer.wrap(buffer).order(ByteOrder.BIG_ENDIAN).long
+        return currentFrameType == 64 || currentFrameType == 38
     }
 }
