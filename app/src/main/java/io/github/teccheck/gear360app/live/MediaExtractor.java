@@ -424,6 +424,7 @@ public class MediaExtractor {
                     videoFormat.setInteger("width", width);
                     videoFormat.setInteger("height", height);
                     Log.d(TAG, "videoCodecType: " + videoCodecType);
+                    Log.d(TAG, "FPS: " + fps);
                     switch (videoCodecType) {
                         case 0:
                             videoFormat.setString("mime", "video/raw");
