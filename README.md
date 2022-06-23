@@ -1,44 +1,33 @@
 # Gear360App
-A Gear 360 app that is opensource and should work better than the original one
+An open source Gear 360 app that should work an any device with Android 5+
 
-### Important Note
-Be sure to always have `[MAJOR].[MINOR]` version numbers in your `accessoryservices.xml` file. Otherwise Samsung Accessory Service **will** crash.
+## Road map
+* [x] Connect to the camera from the app
+* [x] Basic communication
+* [x] Remote control (only some buttons work due to restrictions in the camera)
+* [ ] Live preview
+* [ ] Gallery
+* [ ] Developer menu
+* [ ] Firmware update (maybe)
 
-### The goal of this app
-This app should be smaller, not as resource intensive and comatible with most of the android devices out there.
-And of course it's open source.
+## How to get a live preview
+Currently live preview is less than ideal but it works more or less. These are the steps to make it work:
 
-### Features that should be in the app
-* Live View with different modes (for example lightweight which doesn't stich the footage and normal which does)
-* Remote shutter
-* Modify settings of the camera
-* View the recorded photos and videos of the camera
+1. Connect your Gear 360
+2. Click on the `Camera` button
+3. Connect with the wifi network of your camera like you normally connect to a wifi network
+   * The name should be something like `AP_Gear 360(XX:XX:XX)`. If you need the password you can find in in the section `Hardware info`
+   * If the AP won't show up you might need to manually add it. You can find SSID (The wifi name) and password in the section `Hardware info`
+4. Go into the test menu
+5. Click on `EXOPLAYER`
 
-### State of progress
-The app is more or less a alpha version. Things are being tested, the original app is being reverse engineered and my brain is being melted. Curently some basic Bluetooth communication is possible:
-* Making photos or videos
-* Getting some infos about the Gear360
+## Contributing
+Contributions are always welcome on any part of the app.
+
+Currently I'm rewriting/removing all the old Java code as I intend to replace it with cleaner Kotlin code. Some things are still written in Java though. For example the [`BTMProviderService`](app/src/main/java/io/github/teccheck/gear360app/bluetooth2/BTMProviderService.java) is written in Java because Samsung Accessory Service can't handle this class being a Kotlin class.
 
 ### Requirements
 The app needs the [Samsung Accessory SDK](https://developer.samsung.com/galaxy-watch/develop/sdk) to work.
-The file Addon.jar is currently unused, you can just remove it form the build.gradle file.
 
-### How to get the app running
-For connecting to the Gear360 you need the original Gear360 app.
-* Open the Samsung Gear360 App and click connect
-* When the Camera is connected close the app by double tapping the back button
-* Open the Gear360App and click connect
-* The camera should be connected
-
-If you want to stream live video:
-* You first need to get the wifi password of the camera. You can get it if you set the camera in Google Street View mode. To do that you need to power the camera off. Then Power it on again. Long press the Bluetooth/Menu Button. The click on that button again until you see Google StreetView on the screen. Press the red button and then the camera should display the password (should be an long number). I recommend to write it on a note.
-* Power the camera off and on and connect to the camera as mentioned above
-* Click on Dev Home then on Functions and then Live View
-* Connect to the cameras wifi with the password you got earlier
-* Wait a few seconds once it's connected.
-* Go back to the app and click on Live Activity.
-* You should seen the live stream
-
-### Help is welcome
-If you want to help me feel free to create an Issue or Pull request.
-Thanks and have a great day ;)
+### Important Note
+Be sure to always have `[MAJOR].[MINOR]` version numbers in the [`accessoryservices.xml`](app/src/main/res/xml/accessoryservices.xml) file. Otherwise Samsung Accessory Service **will** crash. It took me way too long to figure this out xD
