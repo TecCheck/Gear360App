@@ -23,6 +23,8 @@ object MessageIds {
     const val DATE_TIME_RSP = "date-time-rsp"
     const val COMMAND_REQ = "cmd-req"
     const val COMMAND_RSP = "cmd-rsp"
+    const val SHOT_REQ = "shot-req"
+    const val SHOT_RSP = "shot-rst"
     const val DEVICE_DESC_URL = "device-desc-url"
     const val BIGDATA_REQ = "bigdata-req"
 }
@@ -343,5 +345,61 @@ class BTDateTimeRsp : BTMessage(
         jsonObject.put(MessageKeys.PROPERTIES, properties)
 
         return jsonObject
+    }
+}
+
+class BTShotReq(private val mode: String) : BTMessage(
+    "Remote shot request Message",
+    "Message structure in JSON for remote shot request",
+    "object"
+) {
+    override fun toJson(): JSONObject {
+        val jsonObject = super.toJson()
+
+        val items = JSONObject()
+            .put(MessageKeys.TYPE, "string")
+            .put(MessageKeys.DESCRIPTION, mode)
+
+        val properties = JSONObject()
+            .put(MessageKeys.MSGID, MessageIds.SHOT_REQ)
+            .put("items", items);
+
+        jsonObject.put(MessageKeys.PROPERTIES, properties)
+
+        return jsonObject
+    }
+}
+
+class BTShotRsp(
+    val resultEnum: String,
+    val resultType: String,
+    val resultCode: Int,
+    val recordableTime: Int,
+    val capturableCount: Int
+) : BTMessage(
+    "Remote shot response Message",
+    "Message structure in JSON for remote shot response",
+    "object"
+) {
+    companion object {
+        fun fromJson(jsonObject: JSONObject): BTShotRsp {
+            val properties = jsonObject.getJSONObject(MessageKeys.PROPERTIES)
+
+            val result = properties.getJSONObject("result")
+            val resultEnum = result.getString("enum")
+            val resultType = result.getString(MessageKeys.DESCRIPTION)
+
+            val rCode = properties.getJSONObject("r-code")
+            val resultCode = rCode.getInt("description")
+
+            val info = properties.getJSONObject("extension-info")
+            val recordableTime =
+                info.getJSONObject("recordable-time").getInt(MessageKeys.DESCRIPTION)
+
+            val capturableCount =
+                info.getJSONObject("capturable-count").getInt(MessageKeys.DESCRIPTION)
+
+            return BTShotRsp(resultEnum, resultType, resultCode, recordableTime, capturableCount)
+        }
     }
 }

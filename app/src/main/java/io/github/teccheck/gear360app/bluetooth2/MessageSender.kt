@@ -1,8 +1,6 @@
 package io.github.teccheck.gear360app.bluetooth2
 
 import io.github.teccheck.gear360app.Utils
-import io.github.teccheck.gear360app.bluetooth.BTMessages
-import io.github.teccheck.gear360app.bluetooth.BTMessages.*
 
 private const val TAG = "MessageSender"
 
@@ -54,39 +52,20 @@ class MessageSender(private val sender: Sender) {
     }
 
     fun sendShotRequest(isPhotoMode: Boolean, isRecording: Boolean) {
-        if (isPhotoMode) {
-            sendCaptureRequest()
-        } else if (!isPhotoMode) {
-            if (isRecording)
-                sendRecordStopRequest()
-            else
-                sendRecordStartRequest()
-        }
-    }
+        val mode = if (isPhotoMode)
+            "capture"
+        else if (isRecording)
+            "record"
+        else
+            "record stop"
 
-    // makes a photo if camera is in photo mode (does not work in video mode)
-    private fun sendCaptureRequest() {
-        sendCommand(BTShotMsg(IDS.REMOTE_SHOT_REQUEST_MSGID, "capture"))
-    }
-
-    // starts recording if camera is in video mode (does not work in photo mode)
-    private fun sendRecordStartRequest() {
-        sendCommand(BTShotMsg(IDS.REMOTE_SHOT_REQUEST_MSGID, "record"))
-    }
-
-    // stops the recording if camera is recording (does not work in photo mode)
-    private fun sendRecordStopRequest() {
-        sendCommand(BTShotMsg(IDS.REMOTE_SHOT_REQUEST_MSGID, "record stop"))
+        sendCommand2(BTShotReq(mode))
     }
 
     fun sendLiveViewRequest() {
         val action = BTCommandReq.Action("execute", "liveview")
         val message = BTCommandReq(action)
         sendCommand2(message)
-    }
-
-    private fun sendCommand(btMessage: BTMessages.BTMessage) {
-        sender.send(204, btMessage.toJSON().toString().encodeToByteArray())
     }
 
     private fun sendCommand2(message: BTMessage) {

@@ -35,6 +35,9 @@ class MessageHandler {
                 MessageIds.WIDGET_INFO_RSP -> {
                     handleMessage(BTWidgetRsp.fromJson(jsonObject))
                 }
+                MessageIds.SHOT_RSP -> {
+                    handleMessage(BTShotRsp.fromJson(jsonObject))
+                }
                 else -> {
                     Log.w(TAG, "Couldn't handle message with id $msgId")
                 }
