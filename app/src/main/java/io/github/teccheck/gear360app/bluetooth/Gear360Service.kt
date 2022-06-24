@@ -1,4 +1,4 @@
-package io.github.teccheck.gear360app.bluetooth2
+package io.github.teccheck.gear360app.bluetooth
 
 import android.app.Service
 import android.content.Intent

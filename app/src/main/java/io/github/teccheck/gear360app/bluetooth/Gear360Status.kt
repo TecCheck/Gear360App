@@ -1,4 +1,4 @@
-package io.github.teccheck.gear360app.bluetooth2
+package io.github.teccheck.gear360app.bluetooth
 
 data class Gear360Status(
     val battery: Int,

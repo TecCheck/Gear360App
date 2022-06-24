@@ -15,7 +15,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.github.teccheck.gear360app.R
-import io.github.teccheck.gear360app.bluetooth2.Gear360Service
+import io.github.teccheck.gear360app.bluetooth.Gear360Service
 
 private const val TAG = "HardwareInfoActivity"
 

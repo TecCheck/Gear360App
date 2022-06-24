@@ -12,7 +12,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import io.github.teccheck.gear360app.R
-import io.github.teccheck.gear360app.bluetooth2.Gear360Service
+import io.github.teccheck.gear360app.bluetooth.Gear360Service
 import io.github.teccheck.gear360app.utils.ConnectionState
 import io.github.teccheck.gear360app.utils.SettingsHelper
 import io.github.teccheck.gear360app.widget.ConnectionDots

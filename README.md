@@ -24,7 +24,7 @@ Currently live preview is less than ideal but it works more or less. These are t
 ## Contributing
 Contributions are always welcome on any part of the app.
 
-Currently I'm rewriting/removing all the old Java code as I intend to replace it with cleaner Kotlin code. Some things are still written in Java though. For example the [`BTMProviderService`](app/src/main/java/io/github/teccheck/gear360app/bluetooth2/BTMProviderService.java) is written in Java because Samsung Accessory Service can't handle this class being a Kotlin class.
+Currently I'm rewriting/removing all the old Java code as I intend to replace it with cleaner Kotlin code. Some things are still written in Java though. For example the [`BTMProviderService`](app/src/main/java/io/github/teccheck/gear360app/bluetooth/BTMProviderService.java) is written in Java because Samsung Accessory Service can't handle this class being a Kotlin class.
 
 ### Requirements
 The app needs the [Samsung Accessory SDK](https://developer.samsung.com/galaxy-watch/develop/sdk) to work.
