@@ -15,7 +15,7 @@ class MessageSender(private val sender: Sender) {
     }
 
     fun sendWidgetInfoRequest() {
-        sendCommand(BTWidgetInfoMsg())
+        sendCommand2(BTWidgetReq())
     }
 
     fun sendDateTimeRequest() {
@@ -79,16 +79,6 @@ class MessageSender(private val sender: Sender) {
         sendCommand(BTShotMsg(IDS.REMOTE_SHOT_REQUEST_MSGID, "record stop"))
     }
 
-    // unused
-    fun sendCameraConfigInfoRequest() {
-        sendCommand(BTConfigInfoMsg("success", "100"))
-    }
-
-    // not working
-    fun sendFirmwareInstallRequest() {
-        sendCommand(BTFWInstallMsg())
-    }
-
     fun sendLiveViewRequest() {
         val action = BTCommandReq.Action("execute", "liveview")
         val message = BTCommandReq(action)
@@ -104,7 +94,7 @@ class MessageSender(private val sender: Sender) {
     }
 
     interface Sender {
-        fun send(channelId: Int, data: ByteArray);
+        fun send(channelId: Int, data: ByteArray)
     }
 
 }
