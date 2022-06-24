@@ -164,7 +164,7 @@ class BTInfoRsp(
     }
 }
 
-class BTWidgetReq() : BTMessage(
+class BTWidgetReq : BTMessage(
     "Widget info request Message",
     "Message structure in JSON for Widget Info request",
     "object"

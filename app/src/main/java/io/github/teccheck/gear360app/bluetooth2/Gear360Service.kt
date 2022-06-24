@@ -71,33 +71,38 @@ class Gear360Service : Service() {
 
     private val messageListener = object : MessageHandler.MessageListener {
         override fun onMessageReceive(message: BTMessage) {
-            if (message is BTConfigMsg) {
-                gear360Configs.setConfigs(message.configs)
-            } else if (message is BTInfoRsp) {
-                gear360Info = Gear360Info(
-                    message.modelName,
-                    message.modelVersion,
-                    message.channel,
-                    message.wifiDirectMac,
-                    message.apSSID,
-                    message.apPassword,
-                    message.boardRevision,
-                    message.serialNumber,
-                    message.uniqueNumber,
-                    message.wifiMac,
-                    message.btMac,
-                    message.btFotaTestUrl,
-                    message.fwType
-                )
+            when (message) {
+                is BTConfigMsg -> {
+                    gear360Configs.setConfigs(message.configs)
+                }
+                is BTInfoRsp -> {
+                    gear360Info = Gear360Info(
+                        message.modelName,
+                        message.modelVersion,
+                        message.channel,
+                        message.wifiDirectMac,
+                        message.apSSID,
+                        message.apPassword,
+                        message.boardRevision,
+                        message.serialNumber,
+                        message.uniqueNumber,
+                        message.wifiMac,
+                        message.btMac,
+                        message.btFotaTestUrl,
+                        message.fwType
+                    )
 
-                Log.d(
-                    TAG,
-                    "Version: ${gear360Info?.getSemanticVersion()} -- ${gear360Info?.getVersionName()}"
-                )
-            } else if (message is BTWidgetReq) {
-                messageSender.sendWidgetInfoRequest()
-            } else if (message is BTWidgetRsp) {
-                gear360Status = message.gear360Status
+                    Log.d(
+                        TAG,
+                        "Version: ${gear360Info?.getSemanticVersion()} -- ${gear360Info?.getVersionName()}"
+                    )
+                }
+                is BTWidgetReq -> {
+                    messageSender.sendWidgetInfoRequest()
+                }
+                is BTWidgetRsp -> {
+                    gear360Status = message.gear360Status
+                }
             }
         }
     }

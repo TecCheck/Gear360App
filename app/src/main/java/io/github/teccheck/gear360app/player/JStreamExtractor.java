@@ -235,9 +235,6 @@ public class JStreamExtractor implements Extractor {
                 case TAG_VR00:
                     Log.d(TAG, "VR00");
 
-                    if (true)
-                        throw new RuntimeException("test");
-
                     input.readFully(buffer.getData(), 0, 4);
                     buffer.setPosition(0);
                     size = buffer.readInt();

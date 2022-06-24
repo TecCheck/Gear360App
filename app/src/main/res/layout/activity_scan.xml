@@ -112,7 +112,7 @@
             android:orientation="horizontal">
 
             <ImageView
-                android:id="@+id/instraction_image1"
+                android:id="@+id/instruction_image1"
                 android:layout_width="@dimen/dot_image_size"
                 android:layout_height="@dimen/dot_image_size"
                 android:paddingStart="@dimen/dot_image_padding"
@@ -120,7 +120,7 @@
                 android:src="@drawable/instruction_shape_focused" />
 
             <ImageView
-                android:id="@+id/instraction_image2"
+                android:id="@+id/instruction_image2"
                 android:layout_width="@dimen/dot_image_size"
                 android:layout_height="@dimen/dot_image_size"
                 android:paddingStart="@dimen/dot_image_padding"
@@ -128,7 +128,7 @@
                 android:src="@drawable/instruction_shape_unfocused" />
 
             <ImageView
-                android:id="@+id/instraction_image3"
+                android:id="@+id/instruction_image3"
                 android:layout_width="@dimen/dot_image_size"
                 android:layout_height="@dimen/dot_image_size"
                 android:paddingStart="@dimen/dot_image_padding"
@@ -136,7 +136,7 @@
                 android:src="@drawable/instruction_shape_unfocused" />
 
             <ImageView
-                android:id="@+id/instraction_image4"
+                android:id="@+id/instruction_image4"
                 android:layout_width="@dimen/dot_image_size"
                 android:layout_height="@dimen/dot_image_size"
                 android:paddingStart="@dimen/dot_image_padding"
@@ -144,7 +144,7 @@
                 android:src="@drawable/instruction_shape_unfocused" />
 
             <ImageView
-                android:id="@+id/instraction_image5"
+                android:id="@+id/instruction_image5"
                 android:layout_width="@dimen/dot_image_size"
                 android:layout_height="@dimen/dot_image_size"
                 android:paddingStart="@dimen/dot_image_padding"

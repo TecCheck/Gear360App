@@ -12,8 +12,6 @@ import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultAllocator
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import com.google.android.exoplayer2.upstream.HttpDataSource
-import com.google.android.exoplayer2.upstream.cache.CacheDataSource
-import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import io.github.teccheck.gear360app.R
 import io.github.teccheck.gear360app.player.JStreamExtractor
 
@@ -49,7 +47,7 @@ class ExoplayerActivity : AppCompatActivity() {
             )
             .setBackBuffer(200, false)
             .setTargetBufferBytes(-1)
-            .setPrioritizeTimeOverSizeThresholds(true).createDefaultLoadControl()
+            .setPrioritizeTimeOverSizeThresholds(true).build()
 
         player = ExoPlayer.Builder(this)
             .setMediaSourceFactory(mediaSourceFactory)
