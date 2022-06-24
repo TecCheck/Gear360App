@@ -3,7 +3,6 @@ package io.github.teccheck.gear360app.activity
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -18,7 +17,7 @@ import io.github.teccheck.gear360app.bluetooth.*
 
 private const val TAG = "RemoteControlActivity"
 
-class RemoteControlActivity : AppCompatActivity() {
+class RemoteControlActivity : BaseActivity() {
 
     private var gear360Service: Gear360Service? = null
     private var uiInitialised = false
@@ -44,7 +43,7 @@ class RemoteControlActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_remote_control)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setupBackButton()
 
         loopingVideoSettings = findViewById(R.id.looping_video_settings)
         settingsLayout = findViewById(R.id.camera_settings)

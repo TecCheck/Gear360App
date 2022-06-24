@@ -3,7 +3,6 @@ package io.github.teccheck.gear360app.activity
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -19,7 +18,7 @@ import io.github.teccheck.gear360app.bluetooth.Gear360Service
 
 private const val TAG = "HardwareInfoActivity"
 
-class HardwareInfoActivity : AppCompatActivity() {
+class HardwareInfoActivity : BaseActivity() {
 
     private var gear360Service: Gear360Service? = null
 
@@ -41,7 +40,7 @@ class HardwareInfoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_hardware_info)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setupBackButton()
 
         recyclerView = findViewById(R.id.recycler_view)
 

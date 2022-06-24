@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.res.ColorStateList
 import android.os.*
-import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -20,7 +19,7 @@ import io.github.teccheck.gear360app.widget.ConnectionDots
 private const val TAG = "HomeActivity"
 const val EXTRA_MAC_ADDRESS = "mac_address"
 
-class HomeActivity : AppCompatActivity() {
+class HomeActivity : BaseActivity() {
 
     private val mainHandler = Handler(Looper.getMainLooper())
     private var gear360Service: Gear360Service? = null

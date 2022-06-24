@@ -1,7 +1,6 @@
 package io.github.teccheck.gear360app.activity
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import com.google.android.exoplayer2.DefaultLoadControl
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.LoadControl
@@ -15,14 +14,15 @@ import com.google.android.exoplayer2.upstream.HttpDataSource
 import io.github.teccheck.gear360app.R
 import io.github.teccheck.gear360app.player.JStreamExtractor
 
-
-class ExoplayerActivity : AppCompatActivity() {
+class ExoplayerActivity : BaseActivity() {
 
     private lateinit var player: ExoPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_exoplayer)
+
+        setupBackButton()
 
         val playerView = findViewById<PlayerView>(R.id.player_view)
 

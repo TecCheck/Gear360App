@@ -22,7 +22,6 @@ import io.github.teccheck.gear360app.R
 private const val TAG = "ScanActivity"
 private const val SCAN_PERIOD: Long = 10000
 
-
 class ScanActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
