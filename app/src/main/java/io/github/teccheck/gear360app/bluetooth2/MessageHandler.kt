@@ -17,7 +17,7 @@ class MessageHandler {
         try {
             val jsonObject = JSONObject(String(data))
             val msgId =
-                jsonObject.getJSONObject(MessageKeys.PROPERTIES).getString(MessageKeys.MSGID)
+                jsonObject.getJSONObject(MsgConst.PROPERTIES).getString(MsgConst.MSGID)
 
             when (msgId) {
                 MessageIds.DATE_TIME_REQ -> {

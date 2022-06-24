@@ -11,4 +11,9 @@ data class Gear360Status(
     val autoPowerOff: String,
     val recordableTime: Int,
     val capturableCount: Int
-)
+) {
+    fun isRecording(): Boolean {
+        // FIXME
+        return false
+    }
+}

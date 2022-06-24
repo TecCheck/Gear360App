@@ -204,7 +204,8 @@ class RemoteControlActivity : AppCompatActivity() {
     private fun onCaptureButtonPressed() {
         gear360Service?.let {
             val photoMode = it.gear360Configs.getCameraMode() == CameraMode.PHOTO
-            it.messageSender.sendShotRequest(true, false)
+            val recording = it.gear360Status?.isRecording() ?: false
+            it.messageSender.sendShotRequest(photoMode, recording)
         }
     }
 

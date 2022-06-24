@@ -5,13 +5,18 @@ import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
 
-object MessageKeys {
+object MsgConst {
     const val TITLE = "title"
     const val DESCRIPTION = "description"
     const val TYPE = "type"
     const val MSGID = "msgId"
+    
     const val PROPERTIES = "properties"
+    const val ITEMS = "items"
+    const val ENUM = "enum"
+    
     const val OBJECT = "object"
+    const val STRING = "string"
 }
 
 object MessageIds {
@@ -36,23 +41,23 @@ abstract class BTMessage(
 ) {
     open fun toJson(): JSONObject {
         val jsonObject = JSONObject()
-        jsonObject.put(MessageKeys.TITLE, title)
-        jsonObject.put(MessageKeys.DESCRIPTION, description)
-        jsonObject.put(MessageKeys.TYPE, type)
+        jsonObject.put(MsgConst.TITLE, title)
+        jsonObject.put(MsgConst.DESCRIPTION, description)
+        jsonObject.put(MsgConst.TYPE, type)
         return jsonObject
     }
 
     companion object {
         fun getJsonProperty(value: String): JSONObject {
             return JSONObject()
-                .put(MessageKeys.TYPE, "string")
-                .put(MessageKeys.DESCRIPTION, value)
+                .put(MsgConst.TYPE, MsgConst.STRING)
+                .put(MsgConst.DESCRIPTION, value)
         }
 
         fun getJsonProperty(value: Any, type: String): JSONObject {
             return JSONObject()
-                .put(MessageKeys.TYPE, type)
-                .put(MessageKeys.DESCRIPTION, value)
+                .put(MsgConst.TYPE, type)
+                .put(MsgConst.DESCRIPTION, value)
         }
     }
 }
@@ -66,20 +71,20 @@ class BTInfoMsg(
 ) : BTMessage(
     "Phone Device information Message",
     "Message structure in JSON for Phone Device information",
-    "object"
+    MsgConst.OBJECT
 ) {
     override fun toJson(): JSONObject {
         val jsonObject = super.toJson()
 
         val properties = JSONObject()
-        properties.put(MessageKeys.MSGID, MessageIds.DEVICE_INFO)
+        properties.put(MsgConst.MSGID, MessageIds.DEVICE_INFO)
         properties.put(
             "wifi-direct",
             JSONObject()
-                .put("enum", wifiDirect.toString())
+                .put(MsgConst.ENUM, wifiDirect.toString())
                 .put(
                     "ch-negotiation-wa",
-                    JSONObject().put(MessageKeys.DESCRIPTION, "5G-GO")
+                    JSONObject().put(MsgConst.DESCRIPTION, "5G-GO")
                 )
         )
         properties.put("wifi-mac-address", getJsonProperty(wifiMacAddress))
@@ -89,7 +94,7 @@ class BTInfoMsg(
         val opMode = if (retailMode) "retail" else "user"
         properties.put("op-mode", getJsonProperty(opMode))
 
-        jsonObject.put(MessageKeys.PROPERTIES, properties)
+        jsonObject.put(MsgConst.PROPERTIES, properties)
         return jsonObject
     }
 }
@@ -103,15 +108,15 @@ class BTConfigMsg(
 
     companion object {
         fun fromJson(jsonObject: JSONObject): BTConfigMsg {
-            val title = jsonObject.getString(MessageKeys.TITLE)
-            val description = jsonObject.getString(MessageKeys.DESCRIPTION)
-            val type = jsonObject.getString(MessageKeys.TYPE)
+            val title = jsonObject.getString(MsgConst.TITLE)
+            val description = jsonObject.getString(MsgConst.DESCRIPTION)
+            val type = jsonObject.getString(MsgConst.TYPE)
 
-            val properties = jsonObject.getJSONObject(MessageKeys.PROPERTIES)
+            val properties = jsonObject.getJSONObject(MsgConst.PROPERTIES)
 
             val functions = properties.getJSONObject("functions")
             val count: Int = functions.getInt("count")
-            val items: JSONObject = functions.getJSONObject("items")
+            val items: JSONObject = functions.getJSONObject(MsgConst.ITEMS)
 
             val configs = mutableListOf<Gear360Configs.Config>()
 
@@ -149,29 +154,29 @@ class BTInfoRsp(
 ) : BTMessage(title, description, type) {
     companion object {
         fun fromJson(jsonObject: JSONObject): BTInfoRsp {
-            val title = jsonObject.getString(MessageKeys.TITLE)
-            val description = jsonObject.getString(MessageKeys.DESCRIPTION)
-            val type = jsonObject.getString(MessageKeys.TYPE)
+            val title = jsonObject.getString(MsgConst.TITLE)
+            val description = jsonObject.getString(MsgConst.DESCRIPTION)
+            val type = jsonObject.getString(MsgConst.TYPE)
 
-            val properties = jsonObject.getJSONObject(MessageKeys.PROPERTIES)
+            val properties = jsonObject.getJSONObject(MsgConst.PROPERTIES)
 
             return BTInfoRsp(
                 title,
                 description,
                 type,
-                properties.getJSONObject("model-name").getString(MessageKeys.DESCRIPTION),
-                properties.getJSONObject("model-version").getString(MessageKeys.DESCRIPTION),
-                properties.getJSONObject("channel").getInt(MessageKeys.DESCRIPTION),
-                properties.getJSONObject("wifi-direct-mac").getString(MessageKeys.DESCRIPTION),
-                properties.getJSONObject("softap-ssid").getString(MessageKeys.DESCRIPTION),
-                properties.getJSONObject("softap-psword").getString(MessageKeys.DESCRIPTION),
-                properties.getJSONObject("board-revision").getString(MessageKeys.DESCRIPTION),
-                properties.getJSONObject("serial-number").getString(MessageKeys.DESCRIPTION),
-                properties.getJSONObject("unique-number").getString(MessageKeys.DESCRIPTION),
-                properties.getJSONObject("wifi-mac").getString(MessageKeys.DESCRIPTION),
-                properties.getJSONObject("bt-mac").getString(MessageKeys.DESCRIPTION),
-                properties.getJSONObject("bt-fota-test-url").getString(MessageKeys.DESCRIPTION),
-                properties.getJSONObject("fw-type").getInt(MessageKeys.DESCRIPTION),
+                properties.getJSONObject("model-name").getString(MsgConst.DESCRIPTION),
+                properties.getJSONObject("model-version").getString(MsgConst.DESCRIPTION),
+                properties.getJSONObject("channel").getInt(MsgConst.DESCRIPTION),
+                properties.getJSONObject("wifi-direct-mac").getString(MsgConst.DESCRIPTION),
+                properties.getJSONObject("softap-ssid").getString(MsgConst.DESCRIPTION),
+                properties.getJSONObject("softap-psword").getString(MsgConst.DESCRIPTION),
+                properties.getJSONObject("board-revision").getString(MsgConst.DESCRIPTION),
+                properties.getJSONObject("serial-number").getString(MsgConst.DESCRIPTION),
+                properties.getJSONObject("unique-number").getString(MsgConst.DESCRIPTION),
+                properties.getJSONObject("wifi-mac").getString(MsgConst.DESCRIPTION),
+                properties.getJSONObject("bt-mac").getString(MsgConst.DESCRIPTION),
+                properties.getJSONObject("bt-fota-test-url").getString(MsgConst.DESCRIPTION),
+                properties.getJSONObject("fw-type").getInt(MsgConst.DESCRIPTION),
             )
         }
     }
@@ -180,13 +185,13 @@ class BTInfoRsp(
 class BTWidgetReq : BTMessage(
     "Widget info request Message",
     "Message structure in JSON for Widget Info request",
-    "object"
+    MsgConst.OBJECT
 ) {
     override fun toJson(): JSONObject {
         val jsonObject = super.toJson()
 
-        val properties = JSONObject().put(MessageKeys.MSGID, MessageIds.WIDGET_INFO_REQ)
-        jsonObject.put(MessageKeys.PROPERTIES, properties)
+        val properties = JSONObject().put(MsgConst.MSGID, MessageIds.WIDGET_INFO_REQ)
+        jsonObject.put(MsgConst.PROPERTIES, properties)
 
         return jsonObject
     }
@@ -207,28 +212,28 @@ class BTWidgetRsp(
 
     companion object {
         fun fromJson(jsonObject: JSONObject): BTWidgetRsp {
-            val title = jsonObject.getString(MessageKeys.TITLE)
-            val description = jsonObject.getString(MessageKeys.DESCRIPTION)
-            val type = jsonObject.getString(MessageKeys.TYPE)
+            val title = jsonObject.getString(MsgConst.TITLE)
+            val description = jsonObject.getString(MsgConst.DESCRIPTION)
+            val type = jsonObject.getString(MsgConst.TYPE)
 
-            val properties = jsonObject.getJSONObject(MessageKeys.PROPERTIES)
+            val properties = jsonObject.getJSONObject(MsgConst.PROPERTIES)
             val items = properties.getJSONObject("list").getJSONObject("items")
 
-            val battery = items.getJSONObject("battery").getInt(MessageKeys.DESCRIPTION)
+            val battery = items.getJSONObject("battery").getInt(MsgConst.DESCRIPTION)
             val batteryState =
-                items.getJSONObject("battery-state").getString(MessageKeys.DESCRIPTION)
-            val totalMemory = items.getJSONObject("total-memory").getInt(MessageKeys.DESCRIPTION)
-            val usedMemory = items.getJSONObject("used-memory").getInt(MessageKeys.DESCRIPTION)
-            val freeMemory = items.getJSONObject("free-memory").getInt(MessageKeys.DESCRIPTION)
-            val recordState = items.getJSONObject("record-state").getString(MessageKeys.DESCRIPTION)
+                items.getJSONObject("battery-state").getString(MsgConst.DESCRIPTION)
+            val totalMemory = items.getJSONObject("total-memory").getInt(MsgConst.DESCRIPTION)
+            val usedMemory = items.getJSONObject("used-memory").getInt(MsgConst.DESCRIPTION)
+            val freeMemory = items.getJSONObject("free-memory").getInt(MsgConst.DESCRIPTION)
+            val recordState = items.getJSONObject("record-state").getString(MsgConst.DESCRIPTION)
             val captureState =
-                items.getJSONObject("capture-state").getString(MessageKeys.DESCRIPTION)
+                items.getJSONObject("capture-state").getString(MsgConst.DESCRIPTION)
             val autoPowerOff =
-                items.getJSONObject("auto-poweroff").getString(MessageKeys.DESCRIPTION)
+                items.getJSONObject("auto-poweroff").getString(MsgConst.DESCRIPTION)
             val recordableTime =
-                items.getJSONObject("recordable-time").getInt(MessageKeys.DESCRIPTION)
+                items.getJSONObject("recordable-time").getInt(MsgConst.DESCRIPTION)
             val capturableCount =
-                items.getJSONObject("capturable-count").getInt(MessageKeys.DESCRIPTION)
+                items.getJSONObject("capturable-count").getInt(MsgConst.DESCRIPTION)
 
             val status = Gear360Status(
                 battery,
@@ -251,16 +256,16 @@ class BTWidgetRsp(
 class BTCommandReq(private val action: Action) : BTMessage(
     "Command request Message",
     "Message structure in JSON for Command request",
-    MessageKeys.OBJECT
+    MsgConst.OBJECT
 ) {
     override fun toJson(): JSONObject {
         val jsonObject = super.toJson()
 
         val properties = JSONObject()
-        properties.put(MessageKeys.MSGID, MessageIds.COMMAND_REQ)
+        properties.put(MsgConst.MSGID, MessageIds.COMMAND_REQ)
         properties.put("action", action.toJson())
 
-        jsonObject.put(MessageKeys.PROPERTIES, properties)
+        jsonObject.put(MsgConst.PROPERTIES, properties)
 
         return jsonObject
     }
@@ -268,8 +273,8 @@ class BTCommandReq(private val action: Action) : BTMessage(
     open class Action(private val enum: String, private val description: String) {
         open fun toJson(): JSONObject {
             val jsonObject = JSONObject()
-            jsonObject.put("enum", enum)
-            jsonObject.put(MessageKeys.DESCRIPTION, description)
+            jsonObject.put(MsgConst.ENUM, enum)
+            jsonObject.put(MsgConst.DESCRIPTION, description)
             return jsonObject
         }
     }
@@ -293,12 +298,12 @@ class BTCommandReq(private val action: Action) : BTMessage(
             val jsonObject = super.toJson()
 
             val config = JSONObject()
-            config.put(MessageKeys.DESCRIPTION, configValue)
+            config.put(MsgConst.DESCRIPTION, configValue)
 
             val items = JSONObject()
             items.put(configName, config)
 
-            jsonObject.put("items", items)
+            jsonObject.put(MsgConst.ITEMS, items)
             return jsonObject
         }
     }
@@ -307,7 +312,7 @@ class BTCommandReq(private val action: Action) : BTMessage(
 class BTDateTimeReq : BTMessage(
     "Date-Time request Message",
     "Message structure in JSON for Date-Time request",
-    "object"
+    MsgConst.OBJECT
 ) {
     companion object {
         fun fromJson(jsonObject: JSONObject): BTDateTimeReq {
@@ -319,7 +324,7 @@ class BTDateTimeReq : BTMessage(
 class BTDateTimeRsp : BTMessage(
     "Date-Time response Message",
     "Message structure in JSON for Date-Time response",
-    "object"
+    MsgConst.OBJECT
 ) {
     @SuppressLint("SimpleDateFormat")
     override fun toJson(): JSONObject {
@@ -336,13 +341,13 @@ class BTDateTimeRsp : BTMessage(
         val isSummerTimer = TimeZone.getDefault().useDaylightTime()
 
         val properties = JSONObject()
-            .put(MessageKeys.MSGID, MessageIds.DATE_TIME_REQ)
+            .put(MsgConst.MSGID, MessageIds.DATE_TIME_RSP)
             .put("date", getJsonProperty(dateFormat.format(date)))
             .put("time", getJsonProperty(timeFormat.format(date)))
             .put("region", getJsonProperty(region))
             .put("summer", getJsonProperty(isSummerTimer.toString()))
 
-        jsonObject.put(MessageKeys.PROPERTIES, properties)
+        jsonObject.put(MsgConst.PROPERTIES, properties)
 
         return jsonObject
     }
@@ -351,20 +356,16 @@ class BTDateTimeRsp : BTMessage(
 class BTShotReq(private val mode: String) : BTMessage(
     "Remote shot request Message",
     "Message structure in JSON for remote shot request",
-    "object"
+    MsgConst.OBJECT
 ) {
     override fun toJson(): JSONObject {
         val jsonObject = super.toJson()
 
-        val items = JSONObject()
-            .put(MessageKeys.TYPE, "string")
-            .put(MessageKeys.DESCRIPTION, mode)
-
         val properties = JSONObject()
-            .put(MessageKeys.MSGID, MessageIds.SHOT_REQ)
-            .put("items", items);
+            .put(MsgConst.MSGID, MessageIds.SHOT_REQ)
+            .put(MsgConst.ITEMS, getJsonProperty(mode))
 
-        jsonObject.put(MessageKeys.PROPERTIES, properties)
+        jsonObject.put(MsgConst.PROPERTIES, properties)
 
         return jsonObject
     }
@@ -379,25 +380,25 @@ class BTShotRsp(
 ) : BTMessage(
     "Remote shot response Message",
     "Message structure in JSON for remote shot response",
-    "object"
+    MsgConst.OBJECT
 ) {
     companion object {
         fun fromJson(jsonObject: JSONObject): BTShotRsp {
-            val properties = jsonObject.getJSONObject(MessageKeys.PROPERTIES)
+            val properties = jsonObject.getJSONObject(MsgConst.PROPERTIES)
 
             val result = properties.getJSONObject("result")
-            val resultEnum = result.getString("enum")
-            val resultType = result.getString(MessageKeys.DESCRIPTION)
+            val resultEnum = result.getString(MsgConst.ENUM)
+            val resultType = result.getString(MsgConst.DESCRIPTION)
 
             val rCode = properties.getJSONObject("r-code")
-            val resultCode = rCode.getInt("description")
+            val resultCode = rCode.getInt(MsgConst.DESCRIPTION)
 
             val info = properties.getJSONObject("extension-info")
             val recordableTime =
-                info.getJSONObject("recordable-time").getInt(MessageKeys.DESCRIPTION)
+                info.getJSONObject("recordable-time").getInt(MsgConst.DESCRIPTION)
 
             val capturableCount =
-                info.getJSONObject("capturable-count").getInt(MessageKeys.DESCRIPTION)
+                info.getJSONObject("capturable-count").getInt(MsgConst.DESCRIPTION)
 
             return BTShotRsp(resultEnum, resultType, resultCode, recordableTime, capturableCount)
         }
