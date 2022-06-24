@@ -1,13 +1,10 @@
 package io.github.teccheck.gear360app.bluetooth2
 
-import io.github.teccheck.gear360app.Utils
-
 private const val TAG = "MessageSender"
 
 class MessageSender(private val sender: Sender) {
 
-    fun sendPhoneInfo() {
-        val wifiMac = Utils.getWifiMacAddress()
+    fun sendPhoneInfo(wifiMac: String) {
         val versionName = "1.2.00.8"
         sendCommand2(BTInfoMsg(false, wifiMac, "test", versionName, false))
     }

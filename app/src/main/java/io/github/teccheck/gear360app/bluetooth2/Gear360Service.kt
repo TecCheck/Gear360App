@@ -7,6 +7,7 @@ import android.util.Log
 import com.samsung.android.sdk.accessory.SAAgentV2
 import com.samsung.android.sdk.accessorymanager.SamAccessoryManager
 import com.samsung.android.sdk.accessorymanager.SamDevice
+import io.github.teccheck.gear360app.utils.WifiUtils
 
 private const val TAG = "Gear360Service"
 private const val SA_TRANSPORT_TYPE = SamAccessoryManager.TRANSPORT_BT
@@ -49,7 +50,10 @@ class Gear360Service : Service() {
     private val btmStatusCallback = object : BTMProviderService.StatusCallback {
         override fun onConnectDevice(name: String?, peer: String?, product: String?) {
             Log.d(TAG, "onConnectDevice $name, $peer, $product")
-            handler.postDelayed({ messageSender.sendPhoneInfo() }, 2000)
+            handler.postDelayed({
+                val macAddress = WifiUtils.getMacAddress(applicationContext)
+                messageSender.sendPhoneInfo(macAddress)
+            }, 2000)
             callback?.onDeviceConnected()
         }
 
