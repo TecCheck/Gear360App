@@ -20,6 +20,9 @@ class MessageHandler {
                 jsonObject.getJSONObject(MessageKeys.PROPERTIES).getString(MessageKeys.MSGID)
 
             when (msgId) {
+                MessageIds.DATE_TIME_REQ -> {
+                    handleMessage(BTDateTimeReq.fromJson(jsonObject))
+                }
                 MessageIds.CONFIG_INFO -> {
                     handleMessage(BTConfigMsg.fromJson(jsonObject))
                 }

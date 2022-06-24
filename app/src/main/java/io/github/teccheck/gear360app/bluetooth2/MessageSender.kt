@@ -18,8 +18,8 @@ class MessageSender(private val sender: Sender) {
         sendCommand2(BTWidgetReq())
     }
 
-    fun sendDateTimeRequest() {
-        sendCommand(BTDateTimeMsg(IDS.DATE_TIME_REQUEST_TITLE))
+    fun sendDateTimeResponse() {
+        sendCommand2(BTDateTimeRsp())
     }
 
     fun sendChangeMode(mode: CameraMode) {

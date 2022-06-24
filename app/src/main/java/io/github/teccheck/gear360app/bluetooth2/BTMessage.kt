@@ -1,6 +1,9 @@
 package io.github.teccheck.gear360app.bluetooth2
 
+import android.annotation.SuppressLint
 import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.*
 
 object MessageKeys {
     const val TITLE = "title"
@@ -35,6 +38,20 @@ abstract class BTMessage(
         jsonObject.put(MessageKeys.DESCRIPTION, description)
         jsonObject.put(MessageKeys.TYPE, type)
         return jsonObject
+    }
+
+    companion object {
+        fun getJsonProperty(value: String): JSONObject {
+            return JSONObject()
+                .put(MessageKeys.TYPE, "string")
+                .put(MessageKeys.DESCRIPTION, value)
+        }
+
+        fun getJsonProperty(value: Any, type: String): JSONObject {
+            return JSONObject()
+                .put(MessageKeys.TYPE, type)
+                .put(MessageKeys.DESCRIPTION, value)
+        }
     }
 }
 
@@ -72,12 +89,6 @@ class BTInfoMsg(
 
         jsonObject.put(MessageKeys.PROPERTIES, properties)
         return jsonObject
-    }
-
-    private fun getJsonProperty(value: String): JSONObject {
-        return JSONObject()
-            .put(MessageKeys.TYPE, "string")
-            .put(MessageKeys.DESCRIPTION, value)
     }
 }
 
@@ -288,5 +299,49 @@ class BTCommandReq(private val action: Action) : BTMessage(
             jsonObject.put("items", items)
             return jsonObject
         }
+    }
+}
+
+class BTDateTimeReq : BTMessage(
+    "Date-Time request Message",
+    "Message structure in JSON for Date-Time request",
+    "object"
+) {
+    companion object {
+        fun fromJson(jsonObject: JSONObject): BTDateTimeReq {
+            return BTDateTimeReq()
+        }
+    }
+}
+
+class BTDateTimeRsp : BTMessage(
+    "Date-Time response Message",
+    "Message structure in JSON for Date-Time response",
+    "object"
+) {
+    @SuppressLint("SimpleDateFormat")
+    override fun toJson(): JSONObject {
+        val jsonObject = super.toJson()
+
+        val date = Date(System.currentTimeMillis())
+        val dateFormat = SimpleDateFormat("yyy/MM/dd")
+        val timeFormat = SimpleDateFormat("HH:mm:ss")
+        val zoneFormat = SimpleDateFormat("Z")
+
+        val zone = zoneFormat.format(date)
+        val region = zone.substring(0, 3) + ":" + zone.substring(3, 5)
+
+        val isSummerTimer = TimeZone.getDefault().useDaylightTime()
+
+        val properties = JSONObject()
+            .put(MessageKeys.MSGID, MessageIds.DATE_TIME_REQ)
+            .put("date", getJsonProperty(dateFormat.format(date)))
+            .put("time", getJsonProperty(timeFormat.format(date)))
+            .put("region", getJsonProperty(region))
+            .put("summer", getJsonProperty(isSummerTimer.toString()))
+
+        jsonObject.put(MessageKeys.PROPERTIES, properties)
+
+        return jsonObject
     }
 }

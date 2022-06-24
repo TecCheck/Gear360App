@@ -72,6 +72,9 @@ class Gear360Service : Service() {
     private val messageListener = object : MessageHandler.MessageListener {
         override fun onMessageReceive(message: BTMessage) {
             when (message) {
+                is BTDateTimeReq -> {
+                    messageSender.sendDateTimeResponse()
+                }
                 is BTConfigMsg -> {
                     gear360Configs.setConfigs(message.configs)
                 }
