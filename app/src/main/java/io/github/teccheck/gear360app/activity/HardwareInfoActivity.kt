@@ -1,10 +1,6 @@
 package io.github.teccheck.gear360app.activity
 
-import android.content.ComponentName
-import android.content.Intent
-import android.content.ServiceConnection
 import android.os.Bundle
-import android.os.IBinder
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -14,25 +10,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import io.github.teccheck.gear360app.R
-import io.github.teccheck.gear360app.bluetooth.Gear360Service
 
 private const val TAG = "HardwareInfoActivity"
 
 class HardwareInfoActivity : BaseActivity() {
-
-    private var gear360Service: Gear360Service? = null
-
-    private val gearServiceConnection = object : ServiceConnection {
-        override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
-            Log.d(TAG, "onServiceConnected")
-            gear360Service = (service as Gear360Service.LocalBinder).getService()
-            startRecyclerView()
-        }
-
-        override fun onServiceDisconnected(componentName: ComponentName) {
-            gear360Service = null
-        }
-    }
 
     private lateinit var recyclerView: RecyclerView
 
@@ -44,12 +25,14 @@ class HardwareInfoActivity : BaseActivity() {
 
         recyclerView = findViewById(R.id.recycler_view)
 
-        val intent = Intent(this, Gear360Service::class.java)
-        val success = bindService(intent, gearServiceConnection, BIND_AUTO_CREATE)
-        Log.d(TAG, "Gear360Service bound $success")
+        startGear360Service()
     }
 
-    fun startRecyclerView() {
+    override fun onGearServiceConnected() {
+        startRecyclerView()
+    }
+
+    private fun startRecyclerView() {
         val info = gear360Service?.gear360Info ?: return
 
         Log.d(TAG, "startRecyclerView")

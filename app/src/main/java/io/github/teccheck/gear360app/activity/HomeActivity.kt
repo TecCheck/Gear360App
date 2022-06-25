@@ -1,8 +1,6 @@
 package io.github.teccheck.gear360app.activity
 
-import android.content.ComponentName
 import android.content.Intent
-import android.content.ServiceConnection
 import android.content.res.ColorStateList
 import android.os.*
 import android.util.Log
@@ -11,7 +9,6 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import io.github.teccheck.gear360app.R
-import io.github.teccheck.gear360app.bluetooth.Gear360Service
 import io.github.teccheck.gear360app.utils.ConnectionState
 import io.github.teccheck.gear360app.utils.SettingsHelper
 import io.github.teccheck.gear360app.widget.ConnectionDots
@@ -22,34 +19,6 @@ const val EXTRA_MAC_ADDRESS = "mac_address"
 class HomeActivity : BaseActivity() {
 
     private val mainHandler = Handler(Looper.getMainLooper())
-    private var gear360Service: Gear360Service? = null
-
-    private val gearServiceConnection = object : ServiceConnection {
-        override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
-            Log.d(TAG, "onServiceConnected")
-            gear360Service = (service as Gear360Service.LocalBinder).getService()
-            gear360Service?.setCallback(gear360ServiceCallback)
-            setDeviceConnectivityIndicator(true)
-        }
-
-        override fun onServiceDisconnected(componentName: ComponentName) {
-            gear360Service = null
-        }
-    }
-
-    private val gear360ServiceCallback = object : Gear360Service.Callback {
-        override fun onSAMStarted() {
-            connect()
-        }
-
-        override fun onDeviceConnected() {
-            mainHandler.post { setGearConnectivityIndicator(ConnectionState.CONNECTED) }
-        }
-
-        override fun onDeviceDisconnected() {
-            mainHandler.post { setGearConnectivityIndicator(ConnectionState.DISCONNECTED) }
-        }
-    }
 
     private lateinit var connectionDots: ConnectionDots
     private lateinit var connectionDevice: ImageView
@@ -75,9 +44,7 @@ class HomeActivity : BaseActivity() {
             editor.save()
         }
 
-        val intent = Intent(this, Gear360Service::class.java)
-        val success = bindService(intent, gearServiceConnection, BIND_AUTO_CREATE)
-        Log.d(TAG, "Gear360Service bound $success")
+        startGear360Service()
 
         connectButton = findViewById(R.id.btn_connect)
         connectButton.setOnClickListener {
@@ -99,6 +66,22 @@ class HomeActivity : BaseActivity() {
         findViewById<Button>(R.id.btn_test).setOnClickListener {
             startActivity(Intent(this, TestActivity::class.java))
         }
+    }
+
+    override fun onGearServiceConnected() {
+        setDeviceConnectivityIndicator(true)
+    }
+
+    override fun onSAMStarted() {
+        connect()
+    }
+
+    override fun onDeviceConnected() {
+        mainHandler.post { setGearConnectivityIndicator(ConnectionState.CONNECTED) }
+    }
+
+    override fun onDeviceDisconnected() {
+        mainHandler.post { setGearConnectivityIndicator(ConnectionState.DISCONNECTED) }
     }
 
     private fun connect() {
