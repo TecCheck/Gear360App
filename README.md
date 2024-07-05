@@ -1,6 +1,8 @@
 # Gear360App
 An open source Gear 360 app that should work an any device with Android 5+
 
+**IMPORTANT NOTE**: This app is just a prototype/poc but feel free to try it out.
+
 ## Road map
 * [x] Connect to the camera from the app
 * [x] Basic communication
